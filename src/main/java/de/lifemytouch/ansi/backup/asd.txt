@@ -1,0 +1,12 @@
+private void finishChallenge() {
+        active = false;
+        bossBar.setTitle("§6§lAlle Items gesammelt!");
+        bossBar.setProgress(1.0);
+
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            online.sendMessage("§6§lGlückwunsch! §7Alle Items wurden gesammelt!");
+        }
+    }
+
+
+        Bukkit.broadcastMessage("§6§l" + player.getName() + " §7hat §6§l" + formatMaterialName(currentTarget) + " §7gefunden!");

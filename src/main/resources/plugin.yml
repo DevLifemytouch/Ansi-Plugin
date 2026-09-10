@@ -1,0 +1,15 @@
+name: Ansi
+version: '${version}'
+
+main: de.lifemytouch.ansi.Ansi
+api-version: '1.21'
+
+commands:
+  timer:
+    description: Verwaltet den Timer
+  gm:
+    description: Verwaltet den Gamemode eines Spielers
+  rang:
+    description: Verwaltet den Rang eines Spielers
+  challenge:
+    description: Verwaltet Challenges
