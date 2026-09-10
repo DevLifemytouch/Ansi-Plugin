@@ -1,7 +1,7 @@
 package de.lifemytouch.ansi;
 
 import de.lifemytouch.ansi.challenge.ChallengeCommand;
-import de.lifemytouch.ansi.challenge.ChallengeListener;
+import de.lifemytouch.ansi.challenge.item.ItemChallengeListener;
 import de.lifemytouch.ansi.challenge.item.ItemChallengeManager;
 import de.lifemytouch.ansi.challenge.listener.ChallengeInventoryListener;
 import de.lifemytouch.ansi.challenge.mob.MobChallengeListener;
@@ -90,7 +90,7 @@ public final class Ansi extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerChatListener(), this);
         getServer().getPluginManager().registerEvents(new ChallengeInventoryListener(timerManager, itemChallengeManager,
                 mobChallengeManager, challengeSettingManager), this);
-        getServer().getPluginManager().registerEvents(new ChallengeListener(itemChallengeManager), this);
+        getServer().getPluginManager().registerEvents(new ItemChallengeListener(itemChallengeManager), this);
         getServer().getPluginManager().registerEvents(new MotdListener(timerManager, itemChallengeManager), this);
         getServer().getPluginManager().registerEvents(new MobChallengeListener(mobChallengeManager), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(timerManager), this);

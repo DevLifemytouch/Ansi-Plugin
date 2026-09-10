@@ -1,6 +1,5 @@
-package de.lifemytouch.ansi.challenge;
+package de.lifemytouch.ansi.challenge.item;
 
-import de.lifemytouch.ansi.challenge.item.ItemChallengeManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -10,11 +9,11 @@ import org.bukkit.event.inventory.FurnaceExtractEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerFishEvent;
 
-public class ChallengeListener implements Listener {
+public class ItemChallengeListener implements Listener {
 
     private final ItemChallengeManager itemChallengeManager;
 
-    public ChallengeListener(ItemChallengeManager itemChallengeManager) {
+    public ItemChallengeListener(ItemChallengeManager itemChallengeManager) {
         this.itemChallengeManager = itemChallengeManager;
     }
 
