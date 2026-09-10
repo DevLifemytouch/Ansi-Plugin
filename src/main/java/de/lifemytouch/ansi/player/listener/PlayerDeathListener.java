@@ -18,12 +18,12 @@ import java.util.UUID;
 
 public class PlayerDeathListener implements Listener {
 
-    private TimerManager timerManager;
+    private final Runnable pauseTimer;
 
     private final Map<UUID, Location> deathLocations = new HashMap<>();
 
-    public PlayerDeathListener(TimerManager timerManager) {
-        this.timerManager = timerManager;
+    public PlayerDeathListener(Runnable pauseTimer) {
+        this.pauseTimer = pauseTimer;
     }
 
     @EventHandler
@@ -45,7 +45,7 @@ public class PlayerDeathListener implements Listener {
             players.sendMessage(Messages.getPREFIX() + "§c" + player.getName() + "§7 ist §cgestorben§7!");
         }
 
-        timerManager.pause();
+        pauseTimer.run();
 
     }
     @EventHandler

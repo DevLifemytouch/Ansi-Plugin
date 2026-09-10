@@ -7,22 +7,23 @@ import org.bukkit.entity.Player;
 
 public class ChallengeService {
 
-    private final TimerManager timerManager;
     private final ItemChallengeManager itemChallengeManager;
     private final MobChallengeManager mobChallengeManager;
 
+    private Runnable beforeStart;
+
     public ChallengeService(
-            TimerManager timerManager,
             ItemChallengeManager itemChallengeManager,
-            MobChallengeManager mobChallengeManager
+            MobChallengeManager mobChallengeManager,
+            Runnable beforeStart
     ) {
-        this.timerManager = timerManager;
         this.itemChallengeManager = itemChallengeManager;
         this.mobChallengeManager = mobChallengeManager;
+        this.beforeStart = beforeStart;
     }
 
     public void start(Player player, ChallengeType type) {
-        timerManager.reset();
+        beforeStart.run();
 
         switch (type) {
             case ITEMS -> itemChallengeManager.start(player);

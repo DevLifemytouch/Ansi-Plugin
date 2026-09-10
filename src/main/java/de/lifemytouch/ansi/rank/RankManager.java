@@ -13,17 +13,20 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class RankManager {
     private final JavaPlugin plugin;
     private final File dataFile;
+    private final Consumer<Player> onRankApplied;
 
     private final Map<UUID, Rank> playerRanks = new HashMap<>();
     private final Map<UUID, PermissionAttachment> attachments = new HashMap<>();
 
-    public RankManager(JavaPlugin plugin) {
+    public RankManager(JavaPlugin plugin, Consumer<Player> onRankApplied) {
         this.plugin = plugin;
         this.dataFile = new File(plugin.getDataFolder(), "ranks.yml");
+        this.onRankApplied = onRankApplied;
         load();
     }
 
@@ -61,7 +64,7 @@ public class RankManager {
         Player online = target.getPlayer();
         if (online != null) {
             applyPermission(online);
-            TabListManager.updatePrefix(online);
+           if(onRankApplied != null) onRankApplied.accept(online);
         }
     }
 

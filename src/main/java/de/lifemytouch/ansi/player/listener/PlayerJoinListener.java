@@ -11,17 +11,22 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
+import java.util.function.Consumer;
+
 public class PlayerJoinListener implements Listener {
 
     private final RankManager rankManager;
     private final ItemChallengeManager itemChallengeManager;
     private final MobChallengeManager mobChallengeManager;
 
+    private final Consumer<Player> updateTabList;
+
     public PlayerJoinListener(RankManager rankManager, ItemChallengeManager itemChallengeManager,
-                              MobChallengeManager mobChallengeManager) {
+                              MobChallengeManager mobChallengeManager, Consumer<Player> updateTabList) {
         this.rankManager = rankManager;
         this.itemChallengeManager = itemChallengeManager;
         this.mobChallengeManager = mobChallengeManager;
+        this.updateTabList = updateTabList;
     }
 
     @EventHandler
@@ -29,7 +34,7 @@ public class PlayerJoinListener implements Listener {
         Player player = event.getPlayer();
 
         rankManager.applyPermission(player);
-        TabListManager.updatePrefix(player);
+        updateTabList.accept(player);
         itemChallengeManager.addPlayer(player);
         mobChallengeManager.addPlayer(player);
 

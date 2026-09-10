@@ -13,20 +13,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.function.BooleanSupplier;
 
 public class BlockListener implements Listener {
 
-    private final TimerManager timerManager;
-    private final ChallengeSettingManager challengeSettingManager;
+    private final BooleanSupplier timerRunning;
+    private final BooleanSupplier blockRandomizerEnabled;
 
     private final Map<Material, Material> blockMappings = new HashMap<>();
     private final List<Material> randomBlocks = new ArrayList<>();
 
     private final Random random = new Random();
 
-    public BlockListener(TimerManager timerManager, ChallengeSettingManager challengeSettingManager) {
-        this.timerManager = timerManager;
-        this.challengeSettingManager = challengeSettingManager;
+    public BlockListener(BooleanSupplier timerRunning, BooleanSupplier blockRandomizerEnabled) {
+        this.timerRunning = timerRunning;
+        this.blockRandomizerEnabled = blockRandomizerEnabled;
 
         loadRandomBlocks();
     }
@@ -63,12 +64,12 @@ public class BlockListener implements Listener {
     @EventHandler
     public void onBreak(BlockBreakEvent event) {
 
-        if (!timerManager.isRunning()) {
+        if (!timerRunning.getAsBoolean()) {
             event.setCancelled(true);
             return;
         }
 
-        if (!challengeSettingManager.isBlockRandomizer()) {
+        if (!blockRandomizerEnabled.getAsBoolean()) {
             return;
         }
 

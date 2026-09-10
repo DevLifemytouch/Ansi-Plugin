@@ -12,6 +12,7 @@ import de.lifemytouch.ansi.gamemode.GamemodeCommand;
 import de.lifemytouch.ansi.player.listener.*;
 import de.lifemytouch.ansi.rank.RankCommand;
 import de.lifemytouch.ansi.server.listener.MotdListener;
+import de.lifemytouch.ansi.server.tab.TabListManager;
 import de.lifemytouch.ansi.timer.TimerCommand;
 import de.lifemytouch.ansi.challenge.tab.ChallengeTabCompleter;
 import de.lifemytouch.ansi.rank.RankCompleter;
@@ -40,11 +41,20 @@ public final class Ansi extends JavaPlugin {
 
     @Override
     public void onEnable() {
+
+        // Core Systeme
+
         timerManager = new TimerManager(this);
+        rankManager = new RankManager(this, TabListManager::updatePrefix);
+
+        // Challenge Systeme
+
         itemChallengeManager = new ItemChallengeManager(this);
         mobChallengeManager = new MobChallengeManager(this);
         challengeSettingManager = new ChallengeSettingManager(this);
-        challengeService = new ChallengeService(timerManager, itemChallengeManager, mobChallengeManager);
+        challengeService = new ChallengeService(itemChallengeManager, mobChallengeManager, timerManager::reset);
+
+        // Timer Tick
 
         getServer().getScheduler().runTaskTimer(
                 this,
@@ -53,7 +63,11 @@ public final class Ansi extends JavaPlugin {
                 20L
         );
 
+        // Challenge GUI
+
         ChallengeSettingGUI.init(challengeSettingManager);
+
+        // Timer Systeme
 
         timerDisplay = new TimerDisplay(this, timerManager);
         timerDisplay.start();
@@ -73,7 +87,6 @@ public final class Ansi extends JavaPlugin {
     }
 
     public void register() {
-        rankManager = new RankManager(this);
 
         // Commands
         getCommand("timer").setExecutor(new TimerCommand(timerManager));
@@ -83,16 +96,20 @@ public final class Ansi extends JavaPlugin {
 
         // Listener
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(rankManager, itemChallengeManager,
-                mobChallengeManager), this);
+                mobChallengeManager, TabListManager::updatePrefix), this);
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(rankManager, itemChallengeManager,
                 mobChallengeManager), this);
         getServer().getPluginManager().registerEvents(new PlayerChatListener(), this);
-        getServer().getPluginManager().registerEvents(new ChallengeInventoryListener(challengeService, challengeSettingManager), this);
+        getServer().getPluginManager().registerEvents(new PlayerDeathListener(timerManager::pause), this);
+        getServer().getPluginManager().registerEvents(new ChallengeInventoryListener(challengeService,
+                challengeSettingManager), this);
         getServer().getPluginManager().registerEvents(new ItemChallengeListener(itemChallengeManager), this);
-        getServer().getPluginManager().registerEvents(new MotdListener(timerManager, itemChallengeManager), this);
+        getServer().getPluginManager().registerEvents(new MotdListener(timerManager::getFormattedTime,
+                itemChallengeManager::isActive, itemChallengeManager::getCollectedCount,
+                itemChallengeManager::getTotalCount), this);
         getServer().getPluginManager().registerEvents(new MobChallengeListener(mobChallengeManager), this);
-        getServer().getPluginManager().registerEvents(new PlayerDeathListener(timerManager), this);
-        getServer().getPluginManager().registerEvents(new BlockListener(timerManager, challengeSettingManager), this);
+        getServer().getPluginManager().registerEvents(new BlockListener(timerManager::isRunning,
+                challengeSettingManager::isBlockRandomizer), this);
 
         // TabCompleter
         getCommand("rang").setTabCompleter(new RankCompleter());
