@@ -1,6 +1,7 @@
 package de.lifemytouch.ansi.player.listener;
 
 import de.lifemytouch.ansi.Ansi;
+import de.lifemytouch.ansi.core.text.Messages;
 import de.lifemytouch.ansi.timer.TimerManager;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -35,13 +36,13 @@ public class PlayerDeathListener implements Listener {
         );
 
         event.setDeathMessage("");
-        player.sendMessage(Ansi.getPREFIX() + "§7Du bist §cgestorben§7!");
+        player.sendMessage(Messages.getPREFIX() + "§7Du bist §cgestorben§7!");
         for(Player players : Bukkit.getOnlinePlayers()) {
-            players.sendMessage(Ansi.getPREFIX() + "§7Der §6Timer §7wurde §cpausiert§7.");
+            players.sendMessage(Messages.getPREFIX() + "§7Der §6Timer §7wurde §cpausiert§7.");
             players.setGameMode(GameMode.SPECTATOR);
 
             if(players == player) continue;
-            players.sendMessage(Ansi.getPREFIX() + "§c" + player.getName() + "§7 ist §cgestorben§7!");
+            players.sendMessage(Messages.getPREFIX() + "§c" + player.getName() + "§7 ist §cgestorben§7!");
         }
 
         timerManager.pause();

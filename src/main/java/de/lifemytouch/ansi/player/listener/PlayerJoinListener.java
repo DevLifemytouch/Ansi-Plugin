@@ -3,6 +3,7 @@ package de.lifemytouch.ansi.player.listener;
 import de.lifemytouch.ansi.Ansi;
 import de.lifemytouch.ansi.challenge.item.ItemChallengeManager;
 import de.lifemytouch.ansi.challenge.mob.MobChallengeManager;
+import de.lifemytouch.ansi.core.text.Messages;
 import de.lifemytouch.ansi.rank.RankManager;
 import de.lifemytouch.ansi.server.tab.TabListManager;
 import org.bukkit.entity.Player;
@@ -32,7 +33,7 @@ public class PlayerJoinListener implements Listener {
         itemChallengeManager.addPlayer(player);
         mobChallengeManager.addPlayer(player);
 
-        player.sendMessage(Ansi.getPREFIX() + "§7Willkommen auf " + Ansi.getAnsiGradient() + "'s §7Server!");
+        player.sendMessage(Messages.getPREFIX() + "§7Willkommen auf " + Messages.getANSI_GRADIENT() + "'s §7Server!");
         event.setJoinMessage("");
     }
 }

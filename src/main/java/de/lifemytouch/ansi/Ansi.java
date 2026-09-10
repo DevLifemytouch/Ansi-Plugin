@@ -38,10 +38,6 @@ public final class Ansi extends JavaPlugin {
     static Color start = new Color(0, 105, 130);
     static Color end   = new Color(94, 234, 255);
 
-    private static final String ansiGradient = "§x§0§0§6§9§8§2§lA§x§1§F§9§4§A§C§ln§x§3§F§B§F§D§5§ls§x§5§E§E§A§F§F§li";
-    private static final String PREFIX = ansiGradient + " §8| §r";
-    private static final String NO_PERMS = PREFIX + "§7Dazu hast du keine Rechte!";
-
     @Override
     public void onEnable() {
         timerManager = new TimerManager(this);
@@ -102,18 +98,6 @@ public final class Ansi extends JavaPlugin {
         getCommand("rang").setTabCompleter(new RankCompleter());
         getCommand("timer").setTabCompleter(new TimerTabCompleter());
         getCommand("challenge").setTabCompleter(new ChallengeTabCompleter());
-    }
-
-    public static String getAnsiGradient() {
-        return ansiGradient;
-    }
-
-    public static String getPREFIX() {
-        return PREFIX;
-    }
-
-    public static String getNoPerms() {
-        return NO_PERMS;
     }
 
     public TimerManager getTimerManager() {

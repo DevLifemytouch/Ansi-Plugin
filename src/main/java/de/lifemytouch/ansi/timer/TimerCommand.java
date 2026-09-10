@@ -1,6 +1,7 @@
 package de.lifemytouch.ansi.timer;
 
 import de.lifemytouch.ansi.Ansi;
+import de.lifemytouch.ansi.core.text.Messages;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -20,54 +21,54 @@ public class TimerCommand implements CommandExecutor {
         if (!(sender instanceof Player player)) return false;
 
         if(!player.hasPermission("ansi.commands.timer")) {
-            player.sendMessage(Ansi.getNoPerms());
+            player.sendMessage(Messages.getNO_PERMS());
             return false;
         }
 
         if(args.length == 0) {
-            player.sendMessage(Ansi.getPREFIX() + "§7" + timerManager.getFormattedTime());
+            player.sendMessage(Messages.getPREFIX() + "§7" + timerManager.getFormattedTime());
             return true;
         }
 
         switch (args[0].toLowerCase()) {
             case "resume":
                 if(timerManager.isRunning()) {
-                    player.sendMessage(Ansi.getPREFIX() + "§7Der §6Timer §7läuft bereits.");
+                    player.sendMessage(Messages.getPREFIX() + "§7Der §6Timer §7läuft bereits.");
                     return true;
                 }
                 timerManager.start();
-                player.sendMessage(Ansi.getPREFIX() + "§7Der §6Timer §7wurde §agestartet§7.");
+                player.sendMessage(Messages.getPREFIX() + "§7Der §6Timer §7wurde §agestartet§7.");
                 break;
 
             case "pause":
                 if(!timerManager.isRunning()) {
-                    player.sendMessage(Ansi.getPREFIX() + "§7Der §6Timer §7läuft nicht.");
+                    player.sendMessage(Messages.getPREFIX() + "§7Der §6Timer §7läuft nicht.");
                     return false;
                 }
                 timerManager.pause();
-                player.sendMessage(Ansi.getPREFIX() + "§7Der §6Timer §7wurde §cpausiert§7.");
+                player.sendMessage(Messages.getPREFIX() + "§7Der §6Timer §7wurde §cpausiert§7.");
                 break;
 
             case "reset":
                 if(!timerManager.isRunning()) {
-                    player.sendMessage(Ansi.getPREFIX() + "§7Der §6Timer §7wurde §czurückgesetzt §7und §agestartet§7.");
+                    player.sendMessage(Messages.getPREFIX() + "§7Der §6Timer §7wurde §czurückgesetzt §7und §agestartet§7.");
                     timerManager.reset();
                     timerManager.start();
                 }
                 timerManager.reset();
-                player.sendMessage(Ansi.getPREFIX() + "§7Der §6Timer §7wurde §czurückgesetzt§7.");
+                player.sendMessage(Messages.getPREFIX() + "§7Der §6Timer §7wurde §czurückgesetzt§7.");
                 break;
 
             case "stop":
                 if (!timerManager.isRunning()) {
-                    player.sendMessage(Ansi.getPREFIX() + "§7Der §6Timer läuft nicht");
+                    player.sendMessage(Messages.getPREFIX() + "§7Der §6Timer läuft nicht");
                     return false;
                 }
                 timerManager.stop();
-                player.sendMessage(Ansi.getPREFIX() + "§7Der §6Timer §7wurde §cgestoppt§7.");
+                player.sendMessage(Messages.getPREFIX() + "§7Der §6Timer §7wurde §cgestoppt§7.");
                 break;
             default:
-                player.sendMessage(Ansi.getPREFIX() + "§7Dieser Command existiert nicht!");
+                player.sendMessage(Messages.getPREFIX() + "§7Dieser Command existiert nicht!");
         }
 
         return true;

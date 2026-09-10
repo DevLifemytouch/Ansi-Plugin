@@ -3,6 +3,7 @@ package de.lifemytouch.ansi.challenge;
 import de.lifemytouch.ansi.Ansi;
 import de.lifemytouch.ansi.challenge.gui.ChallengeGUI;
 import de.lifemytouch.ansi.challenge.setting.ChallengeSettingGUI;
+import de.lifemytouch.ansi.core.text.Messages;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -15,7 +16,7 @@ public class ChallengeCommand implements CommandExecutor {
         if(!(sender instanceof Player player)) return false;
 
         if(!player.hasPermission("ansi.commands.challenge")) {
-            player.sendMessage(Ansi.getNoPerms());
+            player.sendMessage(Messages.getNO_PERMS());
             return false;
         }
 
@@ -34,6 +35,6 @@ public class ChallengeCommand implements CommandExecutor {
 
     private void openChallengeGUI(Player player) {
         ChallengeGUI.open(player);
-        player.sendMessage(Ansi.getPREFIX() + "§7Wähle eine Challenge aus!");
+        player.sendMessage(Messages.getPREFIX() + "§7Wähle eine Challenge aus!");
     }
 }

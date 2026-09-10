@@ -8,6 +8,7 @@ import de.lifemytouch.ansi.challenge.gui.CustomizeChallengeGUI;
 import de.lifemytouch.ansi.challenge.gui.CustomizeChallengeHolder;
 import de.lifemytouch.ansi.challenge.setting.ChallengeSettingGUI;
 import de.lifemytouch.ansi.challenge.setting.ChallengeSettingManager;
+import de.lifemytouch.ansi.core.text.Messages;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -81,8 +82,7 @@ public class ChallengeInventoryListener implements Listener {
             challengeService.start(player, challengeType);
 
             player.sendMessage(
-                    Ansi.getPREFIX() +
-                            "§7Die Challenge wurde gestartet!"
+                    Messages.getPREFIX() + "§7Die Challenge wurde gestartet!"
             );
 
             player.closeInventory();
@@ -90,7 +90,7 @@ public class ChallengeInventoryListener implements Listener {
         } else if (event.getSlot() == 8) {
 
             player.sendMessage(
-                    Ansi.getPREFIX() + "§cWIP!"
+                    Messages.getPREFIX() + "§cWIP!"
             );
         }
     }
@@ -104,11 +104,12 @@ public class ChallengeInventoryListener implements Listener {
             challengeSettingManager.toggleHardcore(player.getWorld());
 
             player.sendMessage(
-                    Ansi.getPREFIX() +
-                            "§7Hardcore wurde " +
-                            (challengeSettingManager.isHardcore()
-                                    ? "§aaktiviert§7."
-                                    : "§cdeaktiviert§7.")
+                    Messages.getPREFIX() + "§7Hardcore wurde "
+                            + (challengeSettingManager.isHardcore()
+                            ? "§aaktiviert§7."
+                            : "§cdeaktiviert§7."
+                    )
+
             );
 
             ChallengeSettingGUI.open(player);
@@ -120,11 +121,12 @@ public class ChallengeInventoryListener implements Listener {
             challengeSettingManager.toggleBlockRandomizer();
 
             player.sendMessage(
-                    Ansi.getPREFIX() +
+                    Messages.getPREFIX() +
                             "§7Block Randomizer wurde " +
                             (challengeSettingManager.isBlockRandomizer()
                                     ? "§aaktiviert§7."
-                                    : "§cdeaktiviert§7.")
+                                    : "§cdeaktiviert§7."
+                            )
             );
 
             ChallengeSettingGUI.open(player);
