@@ -1,6 +1,7 @@
 package de.lifemytouch.ansi;
 
 import de.lifemytouch.ansi.challenge.ChallengeCommand;
+import de.lifemytouch.ansi.challenge.ChallengeService;
 import de.lifemytouch.ansi.challenge.item.ItemChallengeListener;
 import de.lifemytouch.ansi.challenge.item.ItemChallengeManager;
 import de.lifemytouch.ansi.challenge.listener.ChallengeInventoryListener;
@@ -32,6 +33,7 @@ public final class Ansi extends JavaPlugin {
     private MobChallengeManager mobChallengeManager;
     private TimerDisplay timerDisplay;
     private ChallengeSettingManager challengeSettingManager;
+    private ChallengeService challengeService;
 
     static Color start = new Color(0, 105, 130);
     static Color end   = new Color(94, 234, 255);
@@ -46,6 +48,7 @@ public final class Ansi extends JavaPlugin {
         itemChallengeManager = new ItemChallengeManager(this);
         mobChallengeManager = new MobChallengeManager(this);
         challengeSettingManager = new ChallengeSettingManager(this);
+        challengeService = new ChallengeService(timerManager, itemChallengeManager, mobChallengeManager);
 
         getServer().getScheduler().runTaskTimer(
                 this,
@@ -88,8 +91,7 @@ public final class Ansi extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(rankManager, itemChallengeManager,
                 mobChallengeManager), this);
         getServer().getPluginManager().registerEvents(new PlayerChatListener(), this);
-        getServer().getPluginManager().registerEvents(new ChallengeInventoryListener(timerManager, itemChallengeManager,
-                mobChallengeManager, challengeSettingManager), this);
+        getServer().getPluginManager().registerEvents(new ChallengeInventoryListener(challengeService, challengeSettingManager), this);
         getServer().getPluginManager().registerEvents(new ItemChallengeListener(itemChallengeManager), this);
         getServer().getPluginManager().registerEvents(new MotdListener(timerManager, itemChallengeManager), this);
         getServer().getPluginManager().registerEvents(new MobChallengeListener(mobChallengeManager), this);
