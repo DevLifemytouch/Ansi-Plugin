@@ -18,9 +18,9 @@ public class VanishService {
         this.javaPlugin = javaPlugin;
     }
 
-    public void handleVanish(Player player) {
+    public void setVanish(Player player, boolean vanished) {
 
-        if(vanishList.contains(player)) {
+        if(vanished) {
             for(Player players : Bukkit.getOnlinePlayers()) {
                 players.showPlayer(javaPlugin, player);
             }
@@ -42,6 +42,10 @@ public class VanishService {
             return;
         }
 
+    }
+
+    public boolean isVanished(Player player) {
+        return vanishList.contains(player);
     }
 
 }

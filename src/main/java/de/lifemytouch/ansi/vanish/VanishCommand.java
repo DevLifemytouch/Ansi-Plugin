@@ -24,7 +24,11 @@ public class VanishCommand implements CommandExecutor {
             return true;
         }
 
-        vanishService.handleVanish(player);
+        if(vanishService.isVanished(player)) {
+            vanishService.setVanish(player, true);
+        } else {
+            vanishService.setVanish(player, false);
+        }
 
         return false;
     }
