@@ -2,7 +2,9 @@ package de.lifemytouch.ansi.report.gui;
 
 import de.lifemytouch.ansi.core.item.ItemBuilder;
 import de.lifemytouch.ansi.report.Report;
+import de.lifemytouch.ansi.report.ReportFilter;
 import de.lifemytouch.ansi.report.ReportService;
+import de.lifemytouch.ansi.report.ReportStatus;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -24,45 +26,145 @@ public class ReportListGUI {
 
     }
 
-    public static void open(Player player, ReportService reportService, int page) {
-        List<Report> reports = new ArrayList<>();
+    public static void open(
+            Player player,
+            ReportService reportService,
+            int page,
+            ReportFilter filter
+    ) {
+        List<Report> reports = getFilteredReports(reportService, filter);
 
-        reports.addAll(reportService.getOpenReports());
-        reports.addAll(reportService.getReportsInReview());
-
-        reports.sort((first, second) -> Long.compare(second.getId(), first.getId()));
-
-        int totalPages = Math.max(1, (int) Math.ceil(reports.size() / (double) PAGE_SIZE));
+        int totalPages = Math.max(
+                1,
+                (int) Math.ceil(reports.size() / (double) PAGE_SIZE)
+        );
 
         page = Math.clamp(page, 0, totalPages - 1);
 
-        ReportListHolder reportListHolder = new ReportListHolder(reportService, page);
+        ReportListHolder holder = new ReportListHolder(
+                reportService,
+                page,
+                filter
+        );
 
-        Inventory inventory = Bukkit.createInventory(reportListHolder, 54, TITLE + " §8(" + (page + 1) + "/" + totalPages + ")");
+        Inventory inventory = Bukkit.createInventory(
+                holder,
+                54,
+                TITLE + " §8(" + (page + 1) + "/" + totalPages + ") §7- " + getFilterName(filter)
+        );
 
         int start = page * PAGE_SIZE;
         int end = Math.min(start + PAGE_SIZE, reports.size());
 
-        for(int index = start; index < end; index++) {
+        for (int index = start; index < end; index++) {
             Report report = reports.get(index);
-
             int slot = index - start;
 
             inventory.setItem(slot, createReportItem(report));
         }
 
-        if(page > 0) {
-            inventory.setItem(45, ItemBuilder.createItem(Material.ARROW, "§e§lVorherige Seite", List.of("")));
+        if (page > 0) {
+            inventory.setItem(
+                    45,
+                    ItemBuilder.createItem(
+                            Material.ARROW,
+                            "§e§lVorherige Seite",
+                            List.of("")
+                    )
+            );
         }
 
-        inventory.setItem(49, ItemBuilder.createItem(Material.BARRIER, "§c§lSchließen", List.of("")));
+        inventory.setItem(
+                46,
+                ItemBuilder.createItem(
+                        Material.HOPPER,
+                        "§6§lFilter",
+                        List.of(
+                                "§7Aktuell: §e" + getFilterName(filter),
+                                "",
+                                "§eKlicke, um den Filter zu wechseln."
+                        )
+                )
+        );
 
-        if(page < totalPages - 1) {
-            inventory.setItem(53, ItemBuilder.createItem(Material.ARROW, "§e§lNächste Seite", List.of("")));
+        inventory.setItem(
+                49,
+                ItemBuilder.createItem(
+                        Material.BARRIER,
+                        "§c§lSchließen",
+                        List.of("")
+                )
+        );
+
+        if (page < totalPages - 1) {
+            inventory.setItem(
+                    53,
+                    ItemBuilder.createItem(
+                            Material.ARROW,
+                            "§e§lNächste Seite",
+                            List.of("")
+                    )
+            );
         }
-
         player.openInventory(inventory);
+    }
 
+    private static List<Report> getFilteredReports(ReportService reportService, ReportFilter reportFilter) {
+        List<Report> reports = new ArrayList<>();
+
+        switch (reportFilter) {
+            case OPEN -> {
+                reports.addAll(reportService.getOpenReports());
+                reports.addAll(reportService.getReportsInReview());
+            }
+
+            case PENDING -> {
+                reports.addAll(reportService.getOpenReports());
+            }
+
+            case IN_REVIEW -> {
+                reports.addAll(reportService.getReportsInReview());
+            }
+
+            case RESOLVED -> {
+                reports.addAll(reportService.getReportsByStatus(ReportStatus.RESOLVED));
+            }
+
+            case DISMISSED -> {
+                reports.addAll(reportService.getReportsByStatus(ReportStatus.DISMISSED));
+            }
+
+            case ALL -> {
+                reports.addAll(reportService.getAllReports());
+            }
+
+            case null, default -> {
+
+            }
+        }
+
+        reports.sort(
+                (first, second) ->
+                        Long.compare(second.getId(), first.getId())
+        );
+
+        return reports;
+
+    }
+
+    public static List<Report> getReports(ReportService reportService, ReportFilter reportFilter) {
+        return getFilteredReports(reportService, reportFilter);
+    }
+
+    private static String getFilterName(ReportFilter reportFilter) {
+        return switch (reportFilter) {
+            case OPEN -> "Offen";
+            case PENDING -> "Pending";
+            case IN_REVIEW -> "In Bearbeitung";
+            case RESOLVED -> "Angenommen";
+            case DISMISSED -> "Abgelehnt";
+            case ALL -> "Alle";
+        };
     }
 
     private static ItemStack createReportItem(Report report) {

@@ -14,7 +14,8 @@ import java.util.stream.Collectors;
 public class RankCompleter implements TabCompleter {
 
     private static final List<String> SUBCOMMANDS = Arrays.asList("set", "info");
-    private static final List<String> RANKS = Arrays.asList("owner", "dev", "admin", "default");
+    private static final List<String> RANKS = Arrays.asList("owner", "dev", "admin", "mod",
+            "media", "vipp", "vip", "prem", "default");
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {

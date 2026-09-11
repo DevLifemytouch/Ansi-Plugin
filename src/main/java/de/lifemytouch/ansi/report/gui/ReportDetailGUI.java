@@ -2,6 +2,7 @@ package de.lifemytouch.ansi.report.gui;
 
 import de.lifemytouch.ansi.core.item.ItemBuilder;
 import de.lifemytouch.ansi.report.Report;
+import de.lifemytouch.ansi.report.ReportFilter;
 import de.lifemytouch.ansi.report.ReportService;
 import de.lifemytouch.ansi.report.ReportStatus;
 import org.bukkit.Bukkit;
@@ -32,7 +33,7 @@ public class ReportDetailGUI {
             return;
         }
 
-        ReportDetailHolder reportDetailHolder = new ReportDetailHolder(reportId, reportService);
+        ReportDetailHolder reportDetailHolder = new ReportDetailHolder(reportId, reportService, ReportFilter.OPEN);
 
         Inventory inventory = Bukkit.createInventory(reportDetailHolder, 27, TITLE + " §8#" + reportId);
 

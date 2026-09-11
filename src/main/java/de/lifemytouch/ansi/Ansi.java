@@ -8,6 +8,7 @@ import de.lifemytouch.ansi.challenge.listener.ChallengeInventoryListener;
 import de.lifemytouch.ansi.challenge.mob.MobChallengeListener;
 import de.lifemytouch.ansi.challenge.mob.MobChallengeManager;
 import de.lifemytouch.ansi.challenge.setting.ChallengeSettingManager;
+import de.lifemytouch.ansi.fly.FlyCommand;
 import de.lifemytouch.ansi.gamemode.GamemodeCommand;
 import de.lifemytouch.ansi.player.listener.*;
 import de.lifemytouch.ansi.rank.RankCommand;
@@ -15,6 +16,7 @@ import de.lifemytouch.ansi.report.commands.ReportCommand;
 import de.lifemytouch.ansi.report.ReportRepository;
 import de.lifemytouch.ansi.report.ReportService;
 import de.lifemytouch.ansi.report.commands.ReportsCommand;
+import de.lifemytouch.ansi.report.gui.ReportListHolder;
 import de.lifemytouch.ansi.report.listener.ReportInventoryListener;
 import de.lifemytouch.ansi.server.listener.MotdListener;
 import de.lifemytouch.ansi.server.tab.TabListManager;
@@ -26,6 +28,8 @@ import de.lifemytouch.ansi.timer.TimerTabCompleter;
 import de.lifemytouch.ansi.challenge.setting.ChallengeSettingGUI;
 import de.lifemytouch.ansi.timer.TimerDisplay;
 import de.lifemytouch.ansi.rank.RankManager;
+import de.lifemytouch.ansi.vanish.VanishCommand;
+import de.lifemytouch.ansi.vanish.VanishService;
 import de.lifemytouch.ansi.world.BlockListener;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -42,6 +46,7 @@ public final class Ansi extends JavaPlugin {
     private ChallengeService challengeService;
     private ReportRepository reportRepository;
     private ReportService reportService;
+    private VanishService vanishService;
 
     static Color start = new Color(0, 105, 130);
     static Color end   = new Color(94, 234, 255);
@@ -81,6 +86,10 @@ public final class Ansi extends JavaPlugin {
         timerDisplay = new TimerDisplay(this, timerManager);
         timerDisplay.start();
 
+        // Vanish Systeme
+
+        vanishService = new VanishService(this);
+
         register();
     }
 
@@ -104,6 +113,8 @@ public final class Ansi extends JavaPlugin {
         getCommand("challenge").setExecutor(new ChallengeCommand());
         getCommand("report").setExecutor(new ReportCommand(reportService));
         getCommand("reports").setExecutor(new ReportsCommand(reportService));
+        getCommand("fly").setExecutor(new FlyCommand());
+        getCommand("vanish").setExecutor(new VanishCommand(vanishService));
 
         // Listener
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(rankManager, itemChallengeManager,

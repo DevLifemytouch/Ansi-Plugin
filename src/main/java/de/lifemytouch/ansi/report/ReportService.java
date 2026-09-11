@@ -2,6 +2,7 @@ package de.lifemytouch.ansi.report;
 
 import org.bukkit.entity.Player;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -93,6 +94,14 @@ public class ReportService {
             );
 
         return report;
+    }
+
+    public Collection<Report> getAllReports() {
+        return reportRepository.findAll();
+    }
+
+    public List<Report> getReportsByStatus(ReportStatus status) {
+        return reportRepository.findByStatus(status);
     }
 
 }

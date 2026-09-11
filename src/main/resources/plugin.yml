@@ -17,3 +17,7 @@ commands:
     description: Meldet einen Spieler
   reports:
     description: Öffnet die Report-Liste
+  fly:
+    description: Erlaubt dem Spieler das Fliegen
+  vanish:
+    description: Versteckt den Spieler vor anderen

@@ -1,9 +1,7 @@
 package de.lifemytouch.ansi.report.listener;
 
 import de.lifemytouch.ansi.core.text.Messages;
-import de.lifemytouch.ansi.report.Report;
-import de.lifemytouch.ansi.report.ReportCategory;
-import de.lifemytouch.ansi.report.ReportStatus;
+import de.lifemytouch.ansi.report.*;
 import de.lifemytouch.ansi.report.gui.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -12,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -105,6 +104,20 @@ public class ReportInventoryListener implements Listener {
 
         int slot = event.getRawSlot();
 
+        if(slot == 46) {
+            ReportFilter nextFilter = switch (holder.getReportFilter()) {
+                case OPEN -> ReportFilter.PENDING;
+                case PENDING -> ReportFilter.IN_REVIEW;
+                case IN_REVIEW -> ReportFilter.RESOLVED;
+                case RESOLVED -> ReportFilter.DISMISSED;
+                case DISMISSED -> ReportFilter.ALL;
+                case ALL -> ReportFilter.OPEN;
+            };
+
+            ReportListGUI.open(player, holder.getReportService(), 0, nextFilter);
+
+        }
+
         if (slot == 49) {
             player.closeInventory();
             return;
@@ -114,7 +127,8 @@ public class ReportInventoryListener implements Listener {
             ReportListGUI.open(
                     player,
                     holder.getReportService(),
-                    holder.getPage() - 1
+                    holder.getPage() - 1,
+                    holder.getReportFilter()
             );
             return;
         }
@@ -123,7 +137,8 @@ public class ReportInventoryListener implements Listener {
             ReportListGUI.open(
                     player,
                     holder.getReportService(),
-                    holder.getPage() + 1
+                    holder.getPage() + 1,
+                    holder.getReportFilter()
             );
             return;
         }
@@ -132,25 +147,12 @@ public class ReportInventoryListener implements Listener {
             return;
         }
 
-        List<Report> reports = new java.util.ArrayList<>();
-
-        reports.addAll(
-                holder.getReportService().getOpenReports()
+        List<Report> reports = ReportListGUI.getReports(
+                holder.getReportService(),
+                holder.getReportFilter()
         );
 
-        reports.addAll(
-                holder.getReportService().getReportsInReview()
-        );
-
-        reports.sort((first, second) ->
-                Long.compare(
-                        second.getId(),
-                        first.getId()
-                )
-        );
-
-        int index =
-                holder.getPage() * 45 + slot;
+        int index = holder.getPage() * 45 + slot;
 
         if (index >= reports.size()) {
             return;
@@ -170,7 +172,8 @@ public class ReportInventoryListener implements Listener {
         int slot = event.getRawSlot();
 
         if(slot == 22) {
-            ReportListGUI.open(player, reportDetailHolder.getReportService(), 0);
+            ReportListGUI.open(player, reportDetailHolder.getReportService(),
+                    0, reportDetailHolder.getReportFilter());
             return;
         }
 
@@ -223,7 +226,8 @@ public class ReportInventoryListener implements Listener {
                             + "§7Report §6#" + report.getId() + "§7 wurde §aabgeschlossen§f.");
 
                     reporter.sendMessage(Messages.getPREFIX() + "§7Dein Report gegen §6"
-                            + reported.getName() + "§7 wurde von einem Teammitglied bearbeitet. Danke für deine Mithilfe!");
+                            + reported.getName() + "§7 wurde von einem Teammitglied bearbeitet. " +
+                            "Danke für deine Mithilfe!");
 
                     player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1, 2);
                 }
@@ -244,7 +248,8 @@ public class ReportInventoryListener implements Listener {
                 reporter.sendMessage(Messages.getPREFIX() + "§7Dein Report gegen §6"
                         + reported.getName() + "§7 wurde von einem Teammitglied bearbeitet. Danke für deine Mithilfe!");
 
-                ReportListGUI.open(player, reportDetailHolder.getReportService(), 0);
+                ReportListGUI.open(player, reportDetailHolder.getReportService(),
+                        0, reportDetailHolder.getReportFilter());
             }
 
             default -> {
