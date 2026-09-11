@@ -11,9 +11,10 @@ import de.lifemytouch.ansi.challenge.setting.ChallengeSettingManager;
 import de.lifemytouch.ansi.gamemode.GamemodeCommand;
 import de.lifemytouch.ansi.player.listener.*;
 import de.lifemytouch.ansi.rank.RankCommand;
-import de.lifemytouch.ansi.report.ReportCommand;
+import de.lifemytouch.ansi.report.commands.ReportCommand;
 import de.lifemytouch.ansi.report.ReportRepository;
 import de.lifemytouch.ansi.report.ReportService;
+import de.lifemytouch.ansi.report.commands.ReportsCommand;
 import de.lifemytouch.ansi.report.listener.ReportInventoryListener;
 import de.lifemytouch.ansi.server.listener.MotdListener;
 import de.lifemytouch.ansi.server.tab.TabListManager;
@@ -102,6 +103,7 @@ public final class Ansi extends JavaPlugin {
         getCommand("rang").setExecutor(new RankCommand(rankManager));
         getCommand("challenge").setExecutor(new ChallengeCommand());
         getCommand("report").setExecutor(new ReportCommand(reportService));
+        getCommand("reports").setExecutor(new ReportsCommand(reportService));
 
         // Listener
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(rankManager, itemChallengeManager,

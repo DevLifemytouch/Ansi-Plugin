@@ -31,7 +31,10 @@ public class ReportGUI {
             Player target,
             ReportService reportService
     ) {
-        Inventory inventory = Bukkit.createInventory(null, 27, TITLE);
+
+        ReportInventoryHolder inventoryHolder = new ReportInventoryHolder(target.getUniqueId(), reportService);
+
+        Inventory inventory = Bukkit.createInventory(inventoryHolder, 27, TITLE);
 
         inventory.setItem(10, ItemBuilder.createItem(
                 Material.IRON_SWORD,

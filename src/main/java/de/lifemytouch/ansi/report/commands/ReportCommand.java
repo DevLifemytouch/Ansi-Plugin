@@ -1,6 +1,7 @@
-package de.lifemytouch.ansi.report;
+package de.lifemytouch.ansi.report.commands;
 
 import de.lifemytouch.ansi.core.text.Messages;
+import de.lifemytouch.ansi.report.ReportService;
 import de.lifemytouch.ansi.report.gui.ReportGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
