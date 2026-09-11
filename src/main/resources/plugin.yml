@@ -13,3 +13,5 @@ commands:
     description: Verwaltet den Rang eines Spielers
   challenge:
     description: Verwaltet Challenges
+  report:
+    description: Meldet einen Spieler

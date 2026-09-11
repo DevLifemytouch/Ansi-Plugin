@@ -18,9 +18,9 @@ public class ReportRepository {
 
     private long nextId = 1;
 
-    public ReportRepository(JavaPlugin javaPlugin, File dataFile) {
+    public ReportRepository(JavaPlugin javaPlugin) {
         this.javaPlugin = javaPlugin;
-        this.dataFile = dataFile;
+        this.dataFile = new File(javaPlugin.getDataFolder(), "reports.yml");
     }
 
     public void save(Report report) {

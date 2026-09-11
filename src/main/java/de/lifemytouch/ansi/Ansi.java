@@ -11,6 +11,10 @@ import de.lifemytouch.ansi.challenge.setting.ChallengeSettingManager;
 import de.lifemytouch.ansi.gamemode.GamemodeCommand;
 import de.lifemytouch.ansi.player.listener.*;
 import de.lifemytouch.ansi.rank.RankCommand;
+import de.lifemytouch.ansi.report.ReportCommand;
+import de.lifemytouch.ansi.report.ReportRepository;
+import de.lifemytouch.ansi.report.ReportService;
+import de.lifemytouch.ansi.report.listener.ReportInventoryListener;
 import de.lifemytouch.ansi.server.listener.MotdListener;
 import de.lifemytouch.ansi.server.tab.TabListManager;
 import de.lifemytouch.ansi.timer.TimerCommand;
@@ -35,6 +39,8 @@ public final class Ansi extends JavaPlugin {
     private TimerDisplay timerDisplay;
     private ChallengeSettingManager challengeSettingManager;
     private ChallengeService challengeService;
+    private ReportRepository reportRepository;
+    private ReportService reportService;
 
     static Color start = new Color(0, 105, 130);
     static Color end   = new Color(94, 234, 255);
@@ -46,6 +52,8 @@ public final class Ansi extends JavaPlugin {
 
         timerManager = new TimerManager(this);
         rankManager = new RankManager(this, TabListManager::updatePrefix);
+        reportRepository = new ReportRepository(this);
+        reportService = new ReportService(reportRepository);
 
         // Challenge Systeme
 
@@ -93,6 +101,7 @@ public final class Ansi extends JavaPlugin {
         getCommand("gm").setExecutor(new GamemodeCommand());
         getCommand("rang").setExecutor(new RankCommand(rankManager));
         getCommand("challenge").setExecutor(new ChallengeCommand());
+        getCommand("report").setExecutor(new ReportCommand(reportService));
 
         // Listener
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(rankManager, itemChallengeManager,
@@ -110,6 +119,7 @@ public final class Ansi extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MobChallengeListener(mobChallengeManager), this);
         getServer().getPluginManager().registerEvents(new BlockListener(timerManager::isRunning,
                 challengeSettingManager::isBlockRandomizer), this);
+        getServer().getPluginManager().registerEvents(new ReportInventoryListener(), this);
 
         // TabCompleter
         getCommand("rang").setTabCompleter(new RankCompleter());
