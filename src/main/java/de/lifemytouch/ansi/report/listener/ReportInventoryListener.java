@@ -3,7 +3,6 @@ package de.lifemytouch.ansi.report.listener;
 import de.lifemytouch.ansi.core.text.Messages;
 import de.lifemytouch.ansi.report.Report;
 import de.lifemytouch.ansi.report.ReportCategory;
-import de.lifemytouch.ansi.report.ReportService;
 import de.lifemytouch.ansi.report.ReportStatus;
 import de.lifemytouch.ansi.report.gui.*;
 import org.bukkit.Bukkit;
@@ -23,52 +22,26 @@ public class ReportInventoryListener implements Listener {
 
         if(!(event.getWhoClicked() instanceof Player player)) return;
 
-        if(!(event.getInventory().getHolder() instanceof ReportInventoryHolder inventoryHolder)) return;
+        if(event.getView().getTopInventory().getHolder() instanceof ReportInventoryHolder holder) {
+            event.setCancelled(true);
 
-        event.setCancelled(true);
-
-        int slot = event.getRawSlot();
-
-        ReportCategory reportCategory = switch (slot) {
-            case 10 -> ReportCategory.HACKING;
-            case 12 -> ReportCategory.CHAT;
-            case 14 -> ReportCategory.BUGUSING;
-            case 16 -> ReportCategory.ADVERTISING;
-            case 22 -> ReportCategory.OTHER;
-            default -> null;
-        };
-
-        if(reportCategory == null) return;
-
-        UUID targetUUID = inventoryHolder.getTarget();
-
-        Player target = Bukkit.getPlayer(targetUUID);
-
-        if(target == null) {
-            player.closeInventory();
-            player.sendMessage(Messages.getPLAYER_NOT_ONLINE());
+            handleReportCreation(event, player, holder);
             return;
         }
 
-        ReportService reportService = inventoryHolder.getReportService();
+        if(event.getView().getTopInventory().getHolder() instanceof ReportListHolder holder) {
+            event.setCancelled(true);
 
-        String reason = switch (reportCategory) {
-            case HACKING -> "Hacking / Cheating";
-            case CHAT -> "CHAT";
-            case BUGUSING -> "Bugusing";
-            case ADVERTISING -> "Werbung";
-            case OTHER -> "Sonstiges";
-            default -> null;
-        };
+            handleReportList(event, player, holder);
+            return;
+        }
 
-        reportService.createReport(player, target, reportCategory, reason);
+        if(event.getView().getTopInventory().getHolder() instanceof ReportDetailHolder holder) {
+            event.setCancelled(true);
 
-        player.closeInventory();
-
-        player.sendMessage(Messages.getPREFIX() + "§7Dein Report gegen §6§l" +
-                target.getName() +
-                "§7 wurde vom Team empfangen und wird in kürze bearbeitet"
-        );
+            handleReportDetail(event, player, holder);
+            return;
+        }
 
     }
 
@@ -114,6 +87,13 @@ public class ReportInventoryListener implements Listener {
                 target.getName() +
                 "§7 wurde vom Team empfangen und wird in kürze bearbeitet"
         );
+
+        for(Player players : Bukkit.getOnlinePlayers()) {
+            if(players.hasPermission("ansi.reports.handle")) {
+                players.sendMessage(Messages.getPREFIX() + "§7Ein neuer §6Report §7ist eingegangen. ");
+                players.sendMessage(Messages.getPREFIX() + "§6/reports §7zum bearbeiten. ");
+            }
+        }
 
     }
 
@@ -223,14 +203,28 @@ public class ReportInventoryListener implements Listener {
             case 15 -> {
 
                 if(report.getStatus() == ReportStatus.PENDING) {
+                    Player reporter = Bukkit.getPlayer(report.getReporter());
+                    Player reported = Bukkit.getPlayer(report.getTarget());
+
                     reportDetailHolder.getReportService().takeReport(report.getId(), player.getUniqueId());
 
                     player.sendMessage(Messages.getPREFIX()
                             + "§7Report §6#" + report.getId() + "§7 wurde §eübernommen§f.");
+
+                    reporter.sendMessage(Messages.getPREFIX() + "§7Dein Report gegen §6"
+                            + reported.getName() + "§7 wird gerade von einem Teammitglied bearbeitet.");
+
                 } else if(report.getStatus() == ReportStatus.IN_REVIEW) {
+                    Player reporter = Bukkit.getPlayer(report.getReporter());
+                    Player reported = Bukkit.getPlayer(report.getTarget());
+
                     reportDetailHolder.getReportService().resolveReport(report.getId(), player.getUniqueId());
                     player.sendMessage(Messages.getPREFIX()
                             + "§7Report §6#" + report.getId() + "§7 wurde §aabgeschlossen§f.");
+
+                    reporter.sendMessage(Messages.getPREFIX() + "§7Dein Report gegen §6"
+                            + reported.getName() + "§7 wurde von einem Teammitglied bearbeitet. Danke für deine Mithilfe!");
+
                     player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1, 2);
                 }
 
@@ -240,9 +234,15 @@ public class ReportInventoryListener implements Listener {
             }
 
             case 16 -> {
+                Player reporter = Bukkit.getPlayer(report.getReporter());
+                Player reported = Bukkit.getPlayer(report.getTarget());
+
                 reportDetailHolder.getReportService().dismissReport(report.getId(), player.getUniqueId());
 
                 player.sendMessage(Messages.getPREFIX() + "§7Report §6#" + report.getId() + " §7wurde §cabgelehnt§7.");
+
+                reporter.sendMessage(Messages.getPREFIX() + "§7Dein Report gegen §6"
+                        + reported.getName() + "§7 wurde von einem Teammitglied bearbeitet. Danke für deine Mithilfe!");
 
                 ReportListGUI.open(player, reportDetailHolder.getReportService(), 0);
             }

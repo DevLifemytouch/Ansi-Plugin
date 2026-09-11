@@ -34,7 +34,7 @@ public class ReportListGUI {
 
         int totalPages = Math.max(1, (int) Math.ceil(reports.size() / (double) PAGE_SIZE));
 
-        page = Math.max(1, (int) Math.ceil(reports.size() / (double) PAGE_SIZE));
+        page = Math.clamp(page, 0, totalPages - 1);
 
         ReportListHolder reportListHolder = new ReportListHolder(reportService, page);
 

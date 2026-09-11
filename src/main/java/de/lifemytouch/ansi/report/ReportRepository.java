@@ -21,6 +21,8 @@ public class ReportRepository {
     public ReportRepository(JavaPlugin javaPlugin) {
         this.javaPlugin = javaPlugin;
         this.dataFile = new File(javaPlugin.getDataFolder(), "reports.yml");
+
+        load();
     }
 
     public void save(Report report) {
@@ -136,7 +138,7 @@ public class ReportRepository {
 
             fileConfiguration.set(path + ".target", report.getTarget().toString());
             fileConfiguration.set(path + ".reporter", report.getReporter().toString());
-            fileConfiguration.set(path + ".category", report.getReason());
+            fileConfiguration.set(path + ".category", report.getCategory().name());
             fileConfiguration.set(path + ".reason", report.getReason());
             fileConfiguration.set(path + ".createdAt", report.getCreatedAt());
             fileConfiguration.set(path + ".status", report.getStatus().name());
