@@ -1,6 +1,7 @@
 package de.lifemytouch.ansi.vanish;
 
 import de.lifemytouch.ansi.core.text.Messages;
+import de.lifemytouch.ansi.fly.FlyService;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -26,8 +27,12 @@ public class VanishCommand implements CommandExecutor {
 
         if(vanishService.isVanished(player)) {
             vanishService.setVanish(player, true);
+            FlyService.handleFly(player);
+            player.sendMessage(Messages.getPREFIX() + "§7Du bist nun im Vanish!");
         } else {
             vanishService.setVanish(player, false);
+            FlyService.handleFly(player);
+            player.sendMessage(Messages.getPREFIX() + "§7Du bist nicht mehr im Vanish!");
         }
 
         return false;

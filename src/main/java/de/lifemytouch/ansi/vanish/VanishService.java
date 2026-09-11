@@ -21,27 +21,25 @@ public class VanishService {
     public void setVanish(Player player, boolean vanished) {
 
         if(vanished) {
-            for(Player players : Bukkit.getOnlinePlayers()) {
-                players.showPlayer(javaPlugin, player);
-            }
-            FlyService.handleFly(player);
-            player.sendMessage(Messages.getPREFIX() + "§7Du bist nicht mehr im Vanish!");
 
-            vanishList.remove(player);
+            if(vanishList.contains(player)) return;
 
-            return;
-        } else {
             for(Player players : Bukkit.getOnlinePlayers()) {
                 players.hidePlayer(javaPlugin, player);
             }
-            FlyService.handleFly(player);
-            player.sendMessage(Messages.getPREFIX() + "§7Du bist nun im Vanish!");
 
             vanishList.add(player);
 
             return;
         }
 
+        if(!vanishList.contains(player)) return;
+
+        for(Player players : Bukkit.getOnlinePlayers()) {
+            players.showPlayer(javaPlugin, player);
+        }
+
+        vanishList.remove(player);
     }
 
     public boolean isVanished(Player player) {

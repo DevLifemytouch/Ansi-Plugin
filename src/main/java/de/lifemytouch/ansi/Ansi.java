@@ -12,6 +12,7 @@ import de.lifemytouch.ansi.fly.FlyCommand;
 import de.lifemytouch.ansi.gamemode.GamemodeCommand;
 import de.lifemytouch.ansi.player.listener.*;
 import de.lifemytouch.ansi.rank.RankCommand;
+import de.lifemytouch.ansi.report.ReportObservationService;
 import de.lifemytouch.ansi.report.commands.ReportCommand;
 import de.lifemytouch.ansi.report.ReportRepository;
 import de.lifemytouch.ansi.report.ReportService;
@@ -47,6 +48,7 @@ public final class Ansi extends JavaPlugin {
     private ReportRepository reportRepository;
     private ReportService reportService;
     private VanishService vanishService;
+    private ReportObservationService reportObservationService;
 
     static Color start = new Color(0, 105, 130);
     static Color end   = new Color(94, 234, 255);
@@ -89,6 +91,7 @@ public final class Ansi extends JavaPlugin {
         // Vanish Systeme
 
         vanishService = new VanishService(this);
+        reportObservationService = new ReportObservationService(vanishService);
 
         register();
     }
@@ -132,7 +135,7 @@ public final class Ansi extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MobChallengeListener(mobChallengeManager), this);
         getServer().getPluginManager().registerEvents(new BlockListener(timerManager::isRunning,
                 challengeSettingManager::isBlockRandomizer), this);
-        getServer().getPluginManager().registerEvents(new ReportInventoryListener(), this);
+        getServer().getPluginManager().registerEvents(new ReportInventoryListener(reportObservationService), this);
 
         // TabCompleter
         getCommand("rang").setTabCompleter(new RankCompleter());

@@ -10,11 +10,15 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class ReportInventoryListener implements Listener {
+
+    private final ReportObservationService reportObservationService;
+
+    public ReportInventoryListener(ReportObservationService reportObservationService) {
+        this.reportObservationService = reportObservationService;
+    }
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
@@ -186,7 +190,29 @@ public class ReportInventoryListener implements Listener {
 
         switch (slot) {
             case 11 -> {
-                player.sendMessage(Messages.getPREFIX() + "§cWIP");
+                Player target = Bukkit.getPlayer(report.getTarget());
+
+                if(target == null) {
+                    player.sendMessage(Messages.getPLAYER_NOT_ONLINE());
+                    return;
+                }
+
+                if(report.getStatus() == ReportStatus.PENDING) {
+                    reportDetailHolder.getReportService().takeReport(report.getId(), player.getUniqueId());
+                }
+
+                boolean started = reportObservationService.start(player, target);
+
+                if(!started) {
+                    player.sendMessage(Messages.getPREFIX() + "§7Du beobachtest bereits einen Spieler!");
+                    return;
+                }
+
+                player.closeInventory();
+
+                player.sendMessage(Messages.getPREFIX() + "§7Du beobachtest nun §6" + target.getName() + "§7.");
+
+                player.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 1, 1);
             }
 
             case 13 -> {
@@ -221,6 +247,8 @@ public class ReportInventoryListener implements Listener {
                     Player reporter = Bukkit.getPlayer(report.getReporter());
                     Player reported = Bukkit.getPlayer(report.getTarget());
 
+                    reportObservationService.stop(player);
+
                     reportDetailHolder.getReportService().resolveReport(report.getId(), player.getUniqueId());
                     player.sendMessage(Messages.getPREFIX()
                             + "§7Report §6#" + report.getId() + "§7 wurde §aabgeschlossen§f.");
@@ -240,6 +268,8 @@ public class ReportInventoryListener implements Listener {
             case 16 -> {
                 Player reporter = Bukkit.getPlayer(report.getReporter());
                 Player reported = Bukkit.getPlayer(report.getTarget());
+
+                reportObservationService.stop(player);
 
                 reportDetailHolder.getReportService().dismissReport(report.getId(), player.getUniqueId());
 

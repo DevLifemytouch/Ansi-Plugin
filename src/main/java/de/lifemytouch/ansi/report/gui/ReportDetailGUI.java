@@ -44,7 +44,11 @@ public class ReportDetailGUI {
                 ItemBuilder.createItem(
                         Material.ENDER_EYE,
                         "§b§lBeobachten",
-                        Arrays.asList("§cWIP")
+                        Arrays.asList(
+                                "§7Teleportiert dich zum\n",
+                                "§7gemeldeten Spieler und\n",
+                                "§7Vanished dich."
+                        )
                 )
         );
 
