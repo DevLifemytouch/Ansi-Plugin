@@ -123,7 +123,7 @@ public final class Ansi extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(rankManager, itemChallengeManager,
                 mobChallengeManager, TabListManager::updatePrefix), this);
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(rankManager, itemChallengeManager,
-                mobChallengeManager), this);
+                mobChallengeManager, reportObservationService), this);
         getServer().getPluginManager().registerEvents(new PlayerChatListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(timerManager::pause), this);
         getServer().getPluginManager().registerEvents(new ChallengeInventoryListener(challengeService,
