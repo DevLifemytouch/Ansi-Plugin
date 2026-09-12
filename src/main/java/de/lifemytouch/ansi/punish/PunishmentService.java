@@ -36,6 +36,14 @@ public class PunishmentService {
         return punishment;
     }
 
+    public Punishment ban(UUID target, UUID moderator, String reason, Duration duration) {
+        return punish(target, moderator, PunishmentType.BAN, reason, duration);
+    }
+
+    public Punishment mute(UUID target, UUID moderator, String reason, Duration duration) {
+        return punish(target, moderator, PunishmentType.MUTE, reason, duration);
+    }
+
     public List<Punishment> getPunishments(UUID target) {
         List<Punishment> result = new ArrayList<>();
 

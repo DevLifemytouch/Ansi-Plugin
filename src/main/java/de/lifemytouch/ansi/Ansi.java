@@ -11,6 +11,14 @@ import de.lifemytouch.ansi.challenge.setting.ChallengeSettingManager;
 import de.lifemytouch.ansi.fly.FlyCommand;
 import de.lifemytouch.ansi.gamemode.GamemodeCommand;
 import de.lifemytouch.ansi.player.listener.*;
+import de.lifemytouch.ansi.punish.PunishmentRepository;
+import de.lifemytouch.ansi.punish.PunishmentService;
+import de.lifemytouch.ansi.punish.commands.BanCommand;
+import de.lifemytouch.ansi.punish.commands.HistoryCommand;
+import de.lifemytouch.ansi.punish.commands.KickCommand;
+import de.lifemytouch.ansi.punish.commands.MuteCommand;
+import de.lifemytouch.ansi.punish.completer.BanTabCompleter;
+import de.lifemytouch.ansi.punish.listener.PunishmentListener;
 import de.lifemytouch.ansi.rank.RankCommand;
 import de.lifemytouch.ansi.report.ReportObservationService;
 import de.lifemytouch.ansi.report.commands.ReportCommand;
@@ -49,6 +57,8 @@ public final class Ansi extends JavaPlugin {
     private ReportService reportService;
     private VanishService vanishService;
     private ReportObservationService reportObservationService;
+    private PunishmentService punishmentService;
+    private PunishmentRepository punishmentRepository;
 
     static Color start = new Color(0, 105, 130);
     static Color end   = new Color(94, 234, 255);
@@ -93,6 +103,10 @@ public final class Ansi extends JavaPlugin {
         vanishService = new VanishService(this);
         reportObservationService = new ReportObservationService(vanishService);
 
+        // Punishment
+        punishmentRepository = new PunishmentRepository(this);
+        punishmentService = new PunishmentService(punishmentRepository);
+
         register();
     }
 
@@ -118,6 +132,10 @@ public final class Ansi extends JavaPlugin {
         getCommand("reports").setExecutor(new ReportsCommand(reportService));
         getCommand("fly").setExecutor(new FlyCommand());
         getCommand("vanish").setExecutor(new VanishCommand(vanishService));
+        getCommand("ban").setExecutor(new BanCommand(punishmentService));
+        getCommand("mute").setExecutor(new MuteCommand(punishmentService));
+        getCommand("kick").setExecutor(new KickCommand(punishmentService));
+        getCommand("history").setExecutor(new HistoryCommand(punishmentService));
 
         // Listener
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(rankManager, itemChallengeManager,
@@ -136,11 +154,13 @@ public final class Ansi extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new BlockListener(timerManager::isRunning,
                 challengeSettingManager::isBlockRandomizer), this);
         getServer().getPluginManager().registerEvents(new ReportInventoryListener(reportObservationService), this);
+        getServer().getPluginManager().registerEvents(new PunishmentListener(punishmentService), this);
 
         // TabCompleter
         getCommand("rang").setTabCompleter(new RankCompleter());
         getCommand("timer").setTabCompleter(new TimerTabCompleter());
         getCommand("challenge").setTabCompleter(new ChallengeTabCompleter());
+        getCommand("ban").setTabCompleter(new BanTabCompleter());
     }
 
     public TimerManager getTimerManager() {

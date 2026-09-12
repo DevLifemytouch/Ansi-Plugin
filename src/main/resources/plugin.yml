@@ -21,3 +21,11 @@ commands:
     description: Erlaubt dem Spieler das Fliegen
   vanish:
     description: Versteckt den Spieler vor anderen
+  ban:
+    description: Bannt einen Spieler
+  mute:
+    description: Muted einen Spieler
+  kick:
+    description: Kickt einen Spieler
+  history:
+    description: Zeigt die Punish History eines Spielers
