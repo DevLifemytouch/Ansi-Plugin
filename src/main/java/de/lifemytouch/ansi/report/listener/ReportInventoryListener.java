@@ -22,8 +22,10 @@ public class ReportInventoryListener implements Listener {
     private final ReportObservationService reportObservationService;
     private final PunishmentService punishmentService;
 
-    public ReportInventoryListener(ReportObservationService reportObservationService,
-                                   PunishmentService punishmentService) {
+    public ReportInventoryListener(
+            ReportObservationService reportObservationService,
+            PunishmentService punishmentService
+    ) {
         this.reportObservationService = reportObservationService;
         this.punishmentService = punishmentService;
     }
@@ -427,7 +429,7 @@ public class ReportInventoryListener implements Listener {
             return;
         }
 
-        String duration = switch(holder.getPunishmentCategory()) {
+        String durationInput = switch(holder.getPunishmentCategory()) {
             case MOVEMENT_HACKS -> "7d";
             case COMBAT_HACKS -> "14d";
             case INVENTORY_HACKS -> "3d";
@@ -435,21 +437,118 @@ public class ReportInventoryListener implements Listener {
             case OTHER -> null;
         };
 
-        if(holder.getPunishmentCategory() == PunishmentCategory.OTHER) {
+        if(durationInput == null) {
             player.closeInventory();
 
             player.sendMessage(
-                    Messages.getPREFIX() +
-                            "§7Gib die Dauer ein. "
+                    Messages.getPREFIX()
+                            + "§7Gib die gewünschte Dauer ein."
             );
 
             return;
         }
 
-        player.sendMessage(
-                Messages.getPREFIX() +
-                        "§7Ausgewählt: §6" + duration
+        Report report = holder.getReportService()
+                .getReport(holder.getReportId());
+
+        if(report == null) {
+            player.closeInventory();
+            return;
+        }
+
+        Player target = Bukkit.getPlayer(report.getTarget());
+
+        if(target == null) {
+            player.sendMessage(Messages.getPLAYER_NOT_ONLINE());
+            return;
+        }
+
+        Duration duration;
+
+        try {
+            duration = DurationParser.parse(durationInput);
+        } catch(IllegalArgumentException exception) {
+            player.sendMessage(
+                    Messages.getPREFIX()
+                            + "§cUngültige Bestrafungsdauer."
+            );
+            return;
+        }
+
+        String reason = report.getReason();
+
+        switch(holder.getPunishmentType()) {
+
+            case BAN -> {
+                punishmentService.ban(
+                        target.getUniqueId(),
+                        player.getUniqueId(),
+                        holder.getPunishmentCategory(),
+                        reason,
+                        duration
+                );
+
+                target.kickPlayer(
+                        "§cDu wurdest vom Server gebannt!\n\n"
+                                + "§7Grund: §6" + reason + "\n"
+                                + "§7Dauer: §6" + durationInput
+                );
+
+                player.sendMessage(
+                        Messages.getPREFIX()
+                                + "§7Spieler §6" + target.getName()
+                                + "§7 wurde für §6" + durationInput
+                                + " §7gebannt."
+                );
+            }
+
+            case MUTE -> {
+                punishmentService.mute(
+                        target.getUniqueId(),
+                        player.getUniqueId(),
+                        holder.getPunishmentCategory(),
+                        reason,
+                        duration
+                );
+
+                player.sendMessage(
+                        Messages.getPREFIX()
+                                + "§7Spieler §6" + target.getName()
+                                + "§7 wurde für §6" + durationInput
+                                + " §7gemutet."
+                );
+            }
+
+            case KICK -> {
+                punishmentService.punish(
+                        target.getUniqueId(),
+                        player.getUniqueId(),
+                        PunishmentType.KICK,
+                        holder.getPunishmentCategory(),
+                        reason,
+                        Duration.ZERO
+                );
+
+                target.kickPlayer(
+                        "§cDu wurdest vom Server gekickt!\n\n"
+                                + "§7Grund: §6" + reason
+                );
+
+                player.sendMessage(
+                        Messages.getPREFIX()
+                                + "§7Spieler §6" + target.getName()
+                                + "§7 wurde gekickt."
+                );
+            }
+        }
+
+        completeReport(
+                player,
+                holder.getReportService(),
+                report
         );
+
+        player.closeInventory();
     }
 
     private void completeReport(
