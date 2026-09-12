@@ -54,6 +54,13 @@ public class ReportInventoryListener implements Listener {
             return;
         }
 
+        if(event.getView().getTopInventory().getHolder() instanceof ReportPunishmentTypeHolder holder) {
+            event.setCancelled(true);
+
+            handleReportPunishmentType(event, player, holder);
+            return;
+        }
+
     }
 
     private void handleReportCreation(
@@ -318,7 +325,7 @@ public class ReportInventoryListener implements Listener {
             return;
         }
 
-        PunishmentCategory category = switch(slot) {
+        PunishmentCategory category = switch (slot) {
             case 10 -> PunishmentCategory.MOVEMENT_HACKS;
             case 12 -> PunishmentCategory.COMBAT_HACKS;
             case 14 -> PunishmentCategory.INVENTORY_HACKS;
@@ -331,11 +338,49 @@ public class ReportInventoryListener implements Listener {
             return;
         }
 
-        player.sendMessage(
-                Messages.getPREFIX()
-                        + "§7Ausgewählte Kategorie: §6"
-                        + category.name()
+        ReportPunishmentTypeGUI.open(
+                player,
+                holder.getReportService(),
+                holder.getReportId(),
+                category
         );
+    }
+
+    private void handleReportPunishmentType(
+            InventoryClickEvent event,
+            Player player,
+            ReportPunishmentTypeHolder holder
+    ) {
+        int slot = event.getRawSlot();
+
+        if(slot == 22) {
+            ReportPunishmentGUI.open(
+                    player,
+                    holder.getReportService(),
+                    holder.getReportId()
+            );
+            return;
+        }
+
+        switch(slot) {
+            case 11 -> player.sendMessage(
+                    Messages.getPREFIX() +
+                            "§7Ausgewählt: §4§lBan"
+            );
+
+            case 13 -> player.sendMessage(
+                    Messages.getPREFIX() +
+                            "§7Ausgewählt: §c§lMute"
+            );
+
+            case 15 -> player.sendMessage(
+                    Messages.getPREFIX() +
+                            "§7Ausgewählt: §e§lKick"
+            );
+
+            default -> {
+            }
+        }
     }
 
 }
