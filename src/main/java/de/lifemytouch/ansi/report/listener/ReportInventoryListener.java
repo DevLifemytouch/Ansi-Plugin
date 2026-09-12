@@ -13,14 +13,22 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ReportInventoryListener implements Listener {
 
     private final ReportObservationService reportObservationService;
     private final PunishmentService punishmentService;
+
+    private final Map<UUID, CustomPunishmentInput> customPunishments =
+            new ConcurrentHashMap<>();
 
     public ReportInventoryListener(
             ReportObservationService reportObservationService,
@@ -33,46 +41,56 @@ public class ReportInventoryListener implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
 
-        if (!(event.getWhoClicked() instanceof Player player)) {
-            return;
-        }
+        if (!(event.getWhoClicked() instanceof Player player)) return;
 
-        if (event.getView().getTopInventory().getHolder() instanceof ReportInventoryHolder holder) {
+        if (event.getView().getTopInventory().getHolder()
+                instanceof ReportInventoryHolder holder) {
+
             event.setCancelled(true);
 
             handleReportCreation(event, player, holder);
             return;
         }
 
-        if (event.getView().getTopInventory().getHolder() instanceof ReportListHolder holder) {
+        if (event.getView().getTopInventory().getHolder()
+                instanceof ReportListHolder holder) {
+
             event.setCancelled(true);
 
             handleReportList(event, player, holder);
             return;
         }
 
-        if (event.getView().getTopInventory().getHolder() instanceof ReportDetailHolder holder) {
+        if (event.getView().getTopInventory().getHolder()
+                instanceof ReportDetailHolder holder) {
+
             event.setCancelled(true);
 
             handleReportDetail(event, player, holder);
             return;
         }
 
-        if (event.getView().getTopInventory().getHolder() instanceof ReportPunishmentHolder holder) {
+        if (event.getView().getTopInventory().getHolder()
+                instanceof ReportPunishmentHolder holder) {
+
             event.setCancelled(true);
 
             handleReportPunishment(event, player, holder);
             return;
         }
 
-        if (event.getView().getTopInventory().getHolder() instanceof ReportPunishmentTypeHolder holder) {
+        if (event.getView().getTopInventory().getHolder()
+                instanceof ReportPunishmentTypeHolder holder) {
+
             event.setCancelled(true);
 
             handleReportPunishmentType(event, player, holder);
             return;
         }
 
-        if (event.getView().getTopInventory().getHolder() instanceof ReportPunishmentDurationHolder holder) {
+        if (event.getView().getTopInventory().getHolder()
+                instanceof ReportPunishmentDurationHolder holder) {
+
             event.setCancelled(true);
 
             handleReportPunishmentDuration(event, player, holder);
@@ -98,9 +116,7 @@ public class ReportInventoryListener implements Listener {
             default -> null;
         };
 
-        if (reportCategory == null) {
-            return;
-        }
+        if (reportCategory == null) return;
 
         Player target = Bukkit.getPlayer(inventoryHolder.getTarget());
 
@@ -140,7 +156,6 @@ public class ReportInventoryListener implements Listener {
                         Messages.getPREFIX()
                                 + "§7Ein neuer §6Report §7ist eingegangen."
                 );
-
                 players.sendMessage(
                         Messages.getPREFIX()
                                 + "§6/reports §7zum bearbeiten."
@@ -188,6 +203,7 @@ public class ReportInventoryListener implements Listener {
                     holder.getPage() - 1,
                     holder.getReportFilter()
             );
+
             return;
         }
 
@@ -198,6 +214,7 @@ public class ReportInventoryListener implements Listener {
                     holder.getPage() + 1,
                     holder.getReportFilter()
             );
+
             return;
         }
 
@@ -228,22 +245,22 @@ public class ReportInventoryListener implements Listener {
     private void handleReportDetail(
             InventoryClickEvent event,
             Player player,
-            ReportDetailHolder reportDetailHolder
+            ReportDetailHolder holder
     ) {
         int slot = event.getRawSlot();
 
         if (slot == 22) {
             ReportListGUI.open(
                     player,
-                    reportDetailHolder.getReportService(),
+                    holder.getReportService(),
                     0,
-                    reportDetailHolder.getReportFilter()
+                    holder.getReportFilter()
             );
             return;
         }
 
-        Report report = reportDetailHolder.getReportService()
-                .getReport(reportDetailHolder.getReportId());
+        Report report = holder.getReportService()
+                .getReport(holder.getReportId());
 
         if (report == null) {
             player.closeInventory();
@@ -261,11 +278,10 @@ public class ReportInventoryListener implements Listener {
                 }
 
                 if (report.getStatus() == ReportStatus.PENDING) {
-                    reportDetailHolder.getReportService()
-                            .takeReport(
-                                    report.getId(),
-                                    player.getUniqueId()
-                            );
+                    holder.getReportService().takeReport(
+                            report.getId(),
+                            player.getUniqueId()
+                    );
                 }
 
                 boolean started = reportObservationService.start(
@@ -323,26 +339,22 @@ public class ReportInventoryListener implements Listener {
                 );
             }
 
-            case 13 -> {
-                ReportPunishmentGUI.open(
-                        player,
-                        reportDetailHolder.getReportService(),
-                        report.getId()
-                );
-            }
+            case 13 -> ReportPunishmentGUI.open(
+                    player,
+                    holder.getReportService(),
+                    report.getId()
+            );
 
             case 15 -> {
-
                 if (report.getStatus() == ReportStatus.PENDING) {
 
                     Player reporter = Bukkit.getPlayer(report.getReporter());
                     Player reported = Bukkit.getPlayer(report.getTarget());
 
-                    reportDetailHolder.getReportService()
-                            .takeReport(
-                                    report.getId(),
-                                    player.getUniqueId()
-                            );
+                    holder.getReportService().takeReport(
+                            report.getId(),
+                            player.getUniqueId()
+                    );
 
                     player.sendMessage(
                             Messages.getPREFIX()
@@ -364,16 +376,18 @@ public class ReportInventoryListener implements Listener {
 
                 } else if (report.getStatus() == ReportStatus.IN_REVIEW) {
 
+                    reportObservationService.stop(player);
+
                     completeReport(
                             player,
-                            reportDetailHolder.getReportService(),
+                            holder.getReportService(),
                             report
                     );
                 }
 
                 ReportDetailGUI.open(
                         player,
-                        reportDetailHolder.getReportService(),
+                        holder.getReportService(),
                         report.getId()
                 );
             }
@@ -384,11 +398,10 @@ public class ReportInventoryListener implements Listener {
 
                 reportObservationService.stop(player);
 
-                reportDetailHolder.getReportService()
-                        .dismissReport(
-                                report.getId(),
-                                player.getUniqueId()
-                        );
+                holder.getReportService().dismissReport(
+                        report.getId(),
+                        player.getUniqueId()
+                );
 
                 player.sendMessage(
                         Messages.getPREFIX()
@@ -411,9 +424,9 @@ public class ReportInventoryListener implements Listener {
 
                 ReportListGUI.open(
                         player,
-                        reportDetailHolder.getReportService(),
+                        holder.getReportService(),
                         0,
-                        reportDetailHolder.getReportFilter()
+                        holder.getReportFilter()
                 );
             }
 
@@ -505,6 +518,234 @@ public class ReportInventoryListener implements Listener {
         }
     }
 
+    private void handleReportPunishmentDuration(
+            InventoryClickEvent event,
+            Player player,
+            ReportPunishmentDurationHolder holder
+    ) {
+        int slot = event.getRawSlot();
+
+        if (slot == 22) {
+            ReportPunishmentTypeGUI.open(
+                    player,
+                    holder.getReportService(),
+                    holder.getReportId(),
+                    holder.getPunishmentCategory()
+            );
+            return;
+        }
+
+        if (slot != 13) {
+            return;
+        }
+
+        String durationInput = switch (holder.getPunishmentCategory()) {
+            case MOVEMENT_HACKS -> "7d";
+            case COMBAT_HACKS -> "14d";
+            case INVENTORY_HACKS -> "3d";
+            case EXPLOITS -> "4d";
+            case OTHER -> null;
+        };
+
+        if (durationInput == null) {
+
+            customPunishments.put(
+                    player.getUniqueId(),
+                    new CustomPunishmentInput(
+                            holder.getReportService(),
+                            holder.getReportId(),
+                            holder.getPunishmentCategory(),
+                            holder.getPunishmentType()
+                    )
+            );
+
+            player.closeInventory();
+
+            player.sendMessage(
+                    Messages.getPREFIX()
+                            + "§7Gib die gewünschte Dauer im Chat ein."
+            );
+
+            return;
+        }
+
+        executePunishment(
+                player,
+                holder.getReportService(),
+                holder.getReportId(),
+                holder.getPunishmentCategory(),
+                holder.getPunishmentType(),
+                durationInput
+        );
+    }
+
+    @EventHandler
+    public void onCustomDurationInput(AsyncPlayerChatEvent event) {
+
+        Player player = event.getPlayer();
+
+        CustomPunishmentInput input =
+                customPunishments.get(player.getUniqueId());
+
+        if (input == null) {
+            return;
+        }
+
+        event.setCancelled(true);
+
+        String durationInput = event.getMessage().trim();
+
+        if (durationInput.isBlank()) {
+            player.sendMessage(
+                    Messages.getPREFIX()
+                            + "§cBitte gib eine gültige Dauer ein."
+            );
+            return;
+        }
+
+        customPunishments.remove(player.getUniqueId());
+
+        Bukkit.getScheduler().runTask(
+                Bukkit.getPluginManager().getPlugin("Ansi"),
+                () -> executePunishment(
+                        player,
+                        input.getReportService(),
+                        input.getReportId(),
+                        input.getPunishmentCategory(),
+                        input.getPunishmentType(),
+                        durationInput
+                )
+        );
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        customPunishments.remove(event.getPlayer().getUniqueId());
+    }
+
+    private void executePunishment(
+            Player moderator,
+            ReportService reportService,
+            long reportId,
+            PunishmentCategory punishmentCategory,
+            PunishmentType punishmentType,
+            String durationInput
+    ) {
+        Report report = reportService.getReport(reportId);
+
+        if (report == null) {
+            moderator.sendMessage(
+                    Messages.getPREFIX()
+                            + "§cDer Report wurde nicht gefunden."
+            );
+            return;
+        }
+
+        Player target = Bukkit.getPlayer(report.getTarget());
+
+        if (target == null) {
+            moderator.sendMessage(Messages.getPLAYER_NOT_ONLINE());
+            return;
+        }
+
+        Duration duration;
+
+        try {
+            duration = DurationParser.parse(durationInput);
+        } catch (IllegalArgumentException exception) {
+            moderator.sendMessage(
+                    Messages.getPREFIX()
+                            + "§cUngültige Bestrafungsdauer."
+            );
+
+            moderator.sendMessage(
+                    Messages.getPREFIX()
+                            + "§7Erlaubt sind z.B. §630m§7, §62h§7, §67d§7 oder §6perm"
+            );
+            return;
+        }
+
+        String reason = report.getReason();
+
+        switch (punishmentType) {
+
+            case BAN -> {
+                punishmentService.ban(
+                        target.getUniqueId(),
+                        moderator.getUniqueId(),
+                        punishmentCategory,
+                        reason,
+                        duration
+                );
+
+                target.kickPlayer(
+                        "§cDu wurdest vom Server gebannt!\n\n"
+                                + "§7Grund: §6" + reason + "\n"
+                                + "§7Dauer: §6" + durationInput
+                );
+
+                moderator.sendMessage(
+                        Messages.getPREFIX()
+                                + "§7Spieler §6"
+                                + target.getName()
+                                + "§7 wurde für §6"
+                                + durationInput
+                                + " §7gebannt."
+                );
+            }
+
+            case MUTE -> {
+                punishmentService.mute(
+                        target.getUniqueId(),
+                        moderator.getUniqueId(),
+                        punishmentCategory,
+                        reason,
+                        duration
+                );
+
+                moderator.sendMessage(
+                        Messages.getPREFIX()
+                                + "§7Spieler §6"
+                                + target.getName()
+                                + "§7 wurde für §6"
+                                + durationInput
+                                + " §7gemutet."
+                );
+            }
+
+            case KICK -> {
+                punishmentService.punish(
+                        target.getUniqueId(),
+                        moderator.getUniqueId(),
+                        PunishmentType.KICK,
+                        punishmentCategory,
+                        reason,
+                        Duration.ZERO
+                );
+
+                target.kickPlayer(
+                        "§cDu wurdest vom Server gekickt!\n\n"
+                                + "§7Grund: §6" + reason
+                );
+
+                moderator.sendMessage(
+                        Messages.getPREFIX()
+                                + "§7Spieler §6"
+                                + target.getName()
+                                + "§7 wurde gekickt."
+                );
+            }
+        }
+
+        completeReport(
+                moderator,
+                reportService,
+                report
+        );
+
+        moderator.closeInventory();
+    }
+
     private void handleKick(
             Player moderator,
             ReportService reportService,
@@ -514,7 +755,10 @@ public class ReportInventoryListener implements Listener {
         Report report = reportService.getReport(reportId);
 
         if (report == null) {
-            moderator.closeInventory();
+            moderator.sendMessage(
+                    Messages.getPREFIX()
+                            + "§cDer Report wurde nicht gefunden."
+            );
             return;
         }
 
@@ -538,8 +782,7 @@ public class ReportInventoryListener implements Listener {
 
         target.kickPlayer(
                 "§cDu wurdest vom Server gekickt!\n\n"
-                        + "§7Grund: §6"
-                        + reason
+                        + "§7Grund: §6" + reason
         );
 
         moderator.sendMessage(
@@ -556,152 +799,6 @@ public class ReportInventoryListener implements Listener {
         );
 
         moderator.closeInventory();
-    }
-
-    private void handleReportPunishmentDuration(
-            InventoryClickEvent event,
-            Player player,
-            ReportPunishmentDurationHolder holder
-    ) {
-        int slot = event.getRawSlot();
-
-        if (slot == 22) {
-            ReportPunishmentTypeGUI.open(
-                    player,
-                    holder.getReportService(),
-                    holder.getReportId(),
-                    holder.getPunishmentCategory()
-            );
-            return;
-        }
-
-        if (slot != 13) {
-            return;
-        }
-
-        String durationInput = holder.getDuration();
-
-        if (durationInput == null) {
-            player.closeInventory();
-
-            player.sendMessage(
-                    Messages.getPREFIX()
-                            + "§7Gib die gewünschte Dauer ein."
-            );
-
-            return;
-        }
-
-        Report report = holder.getReportService()
-                .getReport(holder.getReportId());
-
-        if (report == null) {
-            player.closeInventory();
-            return;
-        }
-
-        Player target = Bukkit.getPlayer(report.getTarget());
-
-        if (target == null) {
-            player.sendMessage(Messages.getPLAYER_NOT_ONLINE());
-            return;
-        }
-
-        Duration duration;
-
-        try {
-            duration = DurationParser.parse(durationInput);
-        } catch (IllegalArgumentException exception) {
-            player.sendMessage(
-                    Messages.getPREFIX()
-                            + "§cUngültige Bestrafungsdauer."
-            );
-            return;
-        }
-
-        String reason = report.getReason();
-
-        switch (holder.getPunishmentType()) {
-
-            case BAN -> {
-                punishmentService.ban(
-                        target.getUniqueId(),
-                        player.getUniqueId(),
-                        holder.getPunishmentCategory(),
-                        reason,
-                        duration
-                );
-
-                target.kickPlayer(
-                        "§cDu wurdest vom Server gebannt!\n\n"
-                                + "§7Grund: §6"
-                                + reason
-                                + "\n"
-                                + "§7Dauer: §6"
-                                + durationInput
-                );
-
-                player.sendMessage(
-                        Messages.getPREFIX()
-                                + "§7Spieler §6"
-                                + target.getName()
-                                + "§7 wurde für §6"
-                                + durationInput
-                                + " §7gebannt."
-                );
-            }
-
-            case MUTE -> {
-                punishmentService.mute(
-                        target.getUniqueId(),
-                        player.getUniqueId(),
-                        holder.getPunishmentCategory(),
-                        reason,
-                        duration
-                );
-
-                player.sendMessage(
-                        Messages.getPREFIX()
-                                + "§7Spieler §6"
-                                + target.getName()
-                                + "§7 wurde für §6"
-                                + durationInput
-                                + " §7gemutet."
-                );
-            }
-
-            case KICK -> {
-                punishmentService.punish(
-                        target.getUniqueId(),
-                        player.getUniqueId(),
-                        PunishmentType.KICK,
-                        holder.getPunishmentCategory(),
-                        reason,
-                        Duration.ZERO
-                );
-
-                target.kickPlayer(
-                        "§cDu wurdest vom Server gekickt!\n\n"
-                                + "§7Grund: §6"
-                                + reason
-                );
-
-                player.sendMessage(
-                        Messages.getPREFIX()
-                                + "§7Spieler §6"
-                                + target.getName()
-                                + "§7 wurde gekickt."
-                );
-            }
-        }
-
-        completeReport(
-                player,
-                holder.getReportService(),
-                report
-        );
-
-        player.closeInventory();
     }
 
     private void completeReport(
@@ -744,5 +841,41 @@ public class ReportInventoryListener implements Listener {
                 1,
                 2
         );
+    }
+
+    private static class CustomPunishmentInput {
+
+        private final ReportService reportService;
+        private final long reportId;
+        private final PunishmentCategory punishmentCategory;
+        private final PunishmentType punishmentType;
+
+        public CustomPunishmentInput(
+                ReportService reportService,
+                long reportId,
+                PunishmentCategory punishmentCategory,
+                PunishmentType punishmentType
+        ) {
+            this.reportService = reportService;
+            this.reportId = reportId;
+            this.punishmentCategory = punishmentCategory;
+            this.punishmentType = punishmentType;
+        }
+
+        public ReportService getReportService() {
+            return reportService;
+        }
+
+        public long getReportId() {
+            return reportId;
+        }
+
+        public PunishmentCategory getPunishmentCategory() {
+            return punishmentCategory;
+        }
+
+        public PunishmentType getPunishmentType() {
+            return punishmentType;
+        }
     }
 }

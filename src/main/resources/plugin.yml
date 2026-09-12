@@ -29,3 +29,5 @@ commands:
     description: Kickt einen Spieler
   history:
     description: Zeigt die Punish History eines Spielers
+  unpunish:
+    description: Hebt die Sperre eines Spielers auf

@@ -14,6 +14,7 @@ public class Punishment {
     private final Instant createdAt;
     private final Instant expiresAt;
     private final PunishmentCategory punishmentCategory;
+    private boolean revoked;
 
     public Punishment(UUID id, UUID target, UUID moderator,
                       PunishmentType punishmentType, String reason,
@@ -56,6 +57,14 @@ public class Punishment {
         return expiresAt;
     }
 
+    public boolean isRevoked() {
+        return revoked;
+    }
+
+    public void revoke() {
+        this.revoked = true;
+    }
+
     public PunishmentCategory getPunishmentCategory() {
         return punishmentCategory;
     }
@@ -69,7 +78,7 @@ public class Punishment {
     }
 
     public boolean isActive() {
-        return !isExpired();
+        return !isExpired() && !revoked;
     }
 
     public Duration getRemainingDuration() {

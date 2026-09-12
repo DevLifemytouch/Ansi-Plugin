@@ -26,14 +26,14 @@ public class PunishmentRepository {
                 "punishments.yml"
         );
 
-        if(!file.exists()) {
+        if (!file.exists()) {
             try {
-                if(!file.getParentFile().exists()) {
+                if (!file.getParentFile().exists()) {
                     file.getParentFile().mkdirs();
                 }
 
                 file.createNewFile();
-            } catch(IOException exception) {
+            } catch (IOException exception) {
                 plugin.getLogger().severe(
                         "Punishments-Datei konnte nicht erstellt werden!"
                 );
@@ -63,7 +63,10 @@ public class PunishmentRepository {
                 punishment.getPunishmentType().name()
         );
 
-        configuration.set(path + ".category", punishment.getPunishmentCategory().name());
+        configuration.set(
+                path + ".category",
+                punishment.getPunishmentCategory().name()
+        );
 
         configuration.set(
                 path + ".reason",
@@ -82,6 +85,11 @@ public class PunishmentRepository {
                         : punishment.getExpiresAt().toString()
         );
 
+        configuration.set(
+                path + ".revoked",
+                punishment.isRevoked()
+        );
+
         saveFile();
     }
 
@@ -92,15 +100,15 @@ public class PunishmentRepository {
         ConfigurationSection section =
                 configuration.getConfigurationSection("punishments");
 
-        if(section == null) {
+        if (section == null) {
             return punishments;
         }
 
-        for(String id : section.getKeys(false)) {
+        for (String id : section.getKeys(false)) {
 
             Punishment punishment = load(id);
 
-            if(punishment != null) {
+            if (punishment != null) {
                 punishments.add(punishment);
             }
         }
@@ -112,47 +120,74 @@ public class PunishmentRepository {
 
         String path = "punishments." + id;
 
-        if(!configuration.contains(path)) {
+        if (!configuration.contains(path)) {
             return null;
         }
 
         try {
 
-            String categoryName = configuration.getString(path + ".category");
+            String categoryName =
+                    configuration.getString(path + ".category");
 
             PunishmentCategory punishmentCategory =
                     categoryName == null
                             ? PunishmentCategory.OTHER
                             : PunishmentCategory.valueOf(categoryName);
 
-            return new Punishment(
+            Punishment punishment = new Punishment(
                     UUID.fromString(id),
                     UUID.fromString(
-                            Objects.requireNonNull(configuration.getString(path + ".target"))
+                            Objects.requireNonNull(
+                                    configuration.getString(
+                                            path + ".target"
+                                    )
+                            )
                     ),
                     UUID.fromString(
-                            Objects.requireNonNull(configuration.getString(path + ".moderator"))
+                            Objects.requireNonNull(
+                                    configuration.getString(
+                                            path + ".moderator"
+                                    )
+                            )
                     ),
                     PunishmentType.valueOf(
                             configuration.getString(path + ".type")
                     ),
                     configuration.getString(path + ".reason"),
                     Instant.parse(
-                            Objects.requireNonNull(configuration.getString(path + ".createdAt"))
+                            Objects.requireNonNull(
+                                    configuration.getString(
+                                            path + ".createdAt"
+                                    )
+                            )
                     ),
                     configuration.getString(path + ".expiresAt") == null
                             ? null
                             : Instant.parse(
-                            Objects.requireNonNull(configuration.getString(
-                                    path + ".expiresAt"
-                            ))
+                            Objects.requireNonNull(
+                                    configuration.getString(
+                                            path + ".expiresAt"
+                                    )
+                            )
                     ),
                     punishmentCategory
             );
-        } catch(Exception exception) {
+
+            if (configuration.getBoolean(
+                    path + ".revoked",
+                    false
+            )) {
+                punishment.revoke();
+            }
+
+            return punishment;
+
+        } catch (Exception exception) {
+
             plugin.getLogger().warning(
                     "Punishment konnte nicht geladen werden: " + id
             );
+
             return null;
         }
     }
@@ -160,7 +195,7 @@ public class PunishmentRepository {
     private void saveFile() {
         try {
             configuration.save(file);
-        } catch(IOException exception) {
+        } catch (IOException exception) {
             plugin.getLogger().severe(
                     "Punishments-Datei konnte nicht gespeichert werden!"
             );

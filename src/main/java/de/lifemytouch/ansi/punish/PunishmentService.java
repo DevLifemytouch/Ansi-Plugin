@@ -115,4 +115,24 @@ public class PunishmentService {
 
         return null;
     }
+
+    public boolean revokePunishment(
+            UUID target,
+            PunishmentType punishmentType
+    ) {
+        Punishment punishment = getActivePunishment(
+                target,
+                punishmentType
+        );
+
+        if (punishment == null) {
+            return false;
+        }
+
+        punishment.revoke();
+
+        punishmentRepository.save(punishment);
+
+        return true;
+    }
 }

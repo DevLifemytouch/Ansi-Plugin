@@ -13,10 +13,7 @@ import de.lifemytouch.ansi.gamemode.GamemodeCommand;
 import de.lifemytouch.ansi.player.listener.*;
 import de.lifemytouch.ansi.punish.PunishmentRepository;
 import de.lifemytouch.ansi.punish.PunishmentService;
-import de.lifemytouch.ansi.punish.commands.BanCommand;
-import de.lifemytouch.ansi.punish.commands.HistoryCommand;
-import de.lifemytouch.ansi.punish.commands.KickCommand;
-import de.lifemytouch.ansi.punish.commands.MuteCommand;
+import de.lifemytouch.ansi.punish.commands.*;
 import de.lifemytouch.ansi.punish.completer.BanTabCompleter;
 import de.lifemytouch.ansi.punish.listener.PunishmentListener;
 import de.lifemytouch.ansi.rank.RankCommand;
@@ -136,6 +133,7 @@ public final class Ansi extends JavaPlugin {
         getCommand("mute").setExecutor(new MuteCommand(punishmentService));
         getCommand("kick").setExecutor(new KickCommand(punishmentService));
         getCommand("history").setExecutor(new HistoryCommand(punishmentService));
+        getCommand("unpunish").setExecutor(new UnpunishCommand(punishmentService));
 
         // Listener
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(rankManager, itemChallengeManager,
