@@ -16,7 +16,7 @@ public class GamemodeCommand implements CommandExecutor {
 
         if (!(sender instanceof Player player)) return false;
 
-        if (!player.hasPermission("ansi.commands.gamemode")) {
+        if (!player.hasPermission("ansi.commands.gm")) {
             player.sendMessage(Messages.getNO_PERMS());
             return false;
         }

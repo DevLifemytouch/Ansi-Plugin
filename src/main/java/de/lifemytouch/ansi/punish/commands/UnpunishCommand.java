@@ -25,6 +25,11 @@ public class UnpunishCommand implements CommandExecutor {
 
         if(!(sender instanceof Player player)) return true;
 
+        if(!player.hasPermission("ansi.punish.unpunish")) {
+            player.sendMessage(Messages.getNO_PERMS());
+            return true;
+        }
+
         if(args.length != 1) {
             player.sendMessage(Messages.getPREFIX() + "§7Nutze: /unpunish <Spieler>");
             return true;

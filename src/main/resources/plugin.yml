@@ -31,3 +31,5 @@ commands:
     description: Zeigt die Punish History eines Spielers
   unpunish:
     description: Hebt die Sperre eines Spielers auf
+  lobby:
+    description: Teleportiert dich zum Spawn der Lobby

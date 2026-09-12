@@ -5,6 +5,7 @@ import de.lifemytouch.ansi.punish.DurationParser;
 import de.lifemytouch.ansi.punish.PunishmentCategory;
 import de.lifemytouch.ansi.punish.PunishmentService;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -27,17 +28,17 @@ public class BanCommand implements CommandExecutor {
 
         if(!(sender instanceof Player player)) return true;
 
+        if(!player.hasPermission("ansi.punish.ban")) {
+            player.sendMessage(Messages.getNO_PERMS());
+            return true;
+        }
+
         if(args.length < 3) {
             player.sendMessage(Messages.getPREFIX() + "§7Nutze: /ban <Spieler> <Dauer> <Grund>");
             return true;
         }
 
-        Player target = Bukkit.getPlayerExact(args[0]);
-
-        if(target == null) {
-            player.sendMessage(Messages.getPLAYER_NOT_ONLINE());
-            return true;
-        }
+        OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
 
         Duration duration;
 
@@ -52,9 +53,16 @@ public class BanCommand implements CommandExecutor {
 
         punishmentService.ban(target.getUniqueId(), player.getUniqueId(), PunishmentCategory.OTHER, reason, duration);
 
-        target.kickPlayer(
-                "§cDu wurdest vom Server gebannt!\n\n" + "§7Grund: §6" + reason
-        );
+        if(target.isOnline()) {
+            Player onlineTarget = target.getPlayer();
+
+            if(onlineTarget != null) {
+                onlineTarget.kickPlayer(
+                        "§cDu wurdest vom Server gebannt!\n\n" + "§7Grund: §6" + reason
+                );
+            }
+        }
+
 
         player.sendMessage(Messages.getPREFIX() + "§7Du hast §6" + target.getName() + "§7 gebannt!");
         player.sendMessage(Messages.getPREFIX() + "§7Grund: §6" + reason);

@@ -22,7 +22,6 @@ import de.lifemytouch.ansi.report.commands.ReportCommand;
 import de.lifemytouch.ansi.report.ReportRepository;
 import de.lifemytouch.ansi.report.ReportService;
 import de.lifemytouch.ansi.report.commands.ReportsCommand;
-import de.lifemytouch.ansi.report.gui.ReportListHolder;
 import de.lifemytouch.ansi.report.listener.ReportInventoryListener;
 import de.lifemytouch.ansi.server.listener.MotdListener;
 import de.lifemytouch.ansi.server.tab.TabListManager;
@@ -36,7 +35,8 @@ import de.lifemytouch.ansi.timer.TimerDisplay;
 import de.lifemytouch.ansi.rank.RankManager;
 import de.lifemytouch.ansi.vanish.VanishCommand;
 import de.lifemytouch.ansi.vanish.VanishService;
-import de.lifemytouch.ansi.world.BlockListener;
+import de.lifemytouch.ansi.world.commands.LobbyCommand;
+import de.lifemytouch.ansi.world.listener.BlockListener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.awt.*;
@@ -134,6 +134,7 @@ public final class Ansi extends JavaPlugin {
         getCommand("kick").setExecutor(new KickCommand(punishmentService));
         getCommand("history").setExecutor(new HistoryCommand(punishmentService));
         getCommand("unpunish").setExecutor(new UnpunishCommand(punishmentService));
+        getCommand("lobby").setExecutor(new LobbyCommand());
 
         // Listener
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(rankManager, itemChallengeManager,

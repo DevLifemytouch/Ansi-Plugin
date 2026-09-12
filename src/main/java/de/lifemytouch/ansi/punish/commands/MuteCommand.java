@@ -27,6 +27,11 @@ public class MuteCommand implements CommandExecutor {
 
         if(!(sender instanceof Player player)) return true;
 
+        if(!player.hasPermission("ansi.punish.mute")) {
+            player.sendMessage(Messages.getNO_PERMS());
+            return true;
+        }
+
         if(args.length < 3) {
             player.sendMessage(Messages.getPREFIX() + "§7Nutze: /mute <Spieler> <Dauer> <Grund>");
             return true;

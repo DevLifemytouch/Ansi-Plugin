@@ -62,6 +62,16 @@ public class RankCommand implements CommandExecutor {
         OfflinePlayer target = Bukkit.getOfflinePlayer(args[1]);
         rankManager.setRank(target, rank);
 
+        if(target.isOnline()) {
+            Player onlineTarget = target.getPlayer();
+
+            if(onlineTarget != null) {
+                onlineTarget.kickPlayer("§cDu wurdest vom Server gekickt!\n\n" +
+                        "§7Dein Rang hat sich verändert!\n\n" + "§7Bitte verbinde dich erneut!"
+                );
+            }
+        }
+
         player.sendMessage(Messages.getPREFIX() + "§6§l" + target.getName() + "§7 hat nun den Rang §f" +
                 rank.name() + "§7.");
         return true;

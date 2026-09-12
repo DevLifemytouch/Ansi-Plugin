@@ -81,6 +81,11 @@ public class RankManager {
         Rank rank = getRank(player);
         PermissionAttachment attachment = player.addAttachment(plugin);
         attachment.setPermission(rank.getPermission(), true);
+
+        for(String permission : rank.getPermissions()) {
+            attachment.setPermission(permission, true);
+        }
+
         attachments.put(player.getUniqueId(), attachment);
     }
 

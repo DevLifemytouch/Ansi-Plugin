@@ -1,7 +1,5 @@
-package de.lifemytouch.ansi.world;
+package de.lifemytouch.ansi.world.listener;
 
-import de.lifemytouch.ansi.challenge.setting.ChallengeSettingManager;
-import de.lifemytouch.ansi.timer.TimerManager;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;

@@ -16,5 +16,6 @@ public class PlayerChatListener implements Listener {
         Rank rank = Rank.getHighest(player);
 
         event.setFormat(rank.getPrefix() + player.getName() + ": §f" + message);
+
     }
 }

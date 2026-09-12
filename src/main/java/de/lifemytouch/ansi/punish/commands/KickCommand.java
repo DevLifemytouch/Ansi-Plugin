@@ -27,6 +27,11 @@ public class KickCommand implements CommandExecutor {
 
         if(!(sender instanceof Player player)) return true;
 
+        if(!player.hasPermission("ansi.punish.kick")) {
+            player.sendMessage(Messages.getNO_PERMS());
+            return true;
+        }
+
         if(args.length < 2) {
             player.sendMessage(Messages.getPREFIX() + "§7Nutze: /kick <Spieler> <Grund>");
             return true;
