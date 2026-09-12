@@ -189,7 +189,7 @@ public class ReportInventoryListener implements Listener {
         }
 
         switch (slot) {
-            case 11 -> {
+            case 10 -> {
                 Player target = Bukkit.getPlayer(report.getTarget());
 
                 if(target == null) {
@@ -215,7 +215,7 @@ public class ReportInventoryListener implements Listener {
                 player.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 1, 1);
             }
 
-            case 13 -> {
+            case 11 -> {
                 Player target = Bukkit.getPlayer(report.getTarget());
 
                 if(target == null) {
@@ -227,6 +227,10 @@ public class ReportInventoryListener implements Listener {
                 player.sendMessage(Messages.getPREFIX() + "§7Du wurdest zu §6" + target.getName() + "§7teleportiert");
                 player.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 1, 1);
 
+            }
+
+            case 13 -> {
+                ReportPunishmentGUI.open(player, reportDetailHolder.getReportService(), report.getId());
             }
 
             case 15 -> {

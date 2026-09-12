@@ -70,6 +70,7 @@ public class HistoryCommand implements CommandExecutor {
 
             player.sendMessage(type + " §8- §6" + status);
             player.sendMessage("§7Grund: §6" + punishment.getReason());
+            player.sendMessage("§7Kategorie: §6" + punishment.getPunishmentCategory());
             player.sendMessage("§7Datum: §6" + DATE_FORMAT.format(punishment.getCreatedAt()
                     .atZone(ZoneId.systemDefault())));
             player.sendMessage("§7Dauer: §6" + duration);

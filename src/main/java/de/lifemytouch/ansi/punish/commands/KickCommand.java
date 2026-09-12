@@ -1,6 +1,7 @@
 package de.lifemytouch.ansi.punish.commands;
 
 import de.lifemytouch.ansi.core.text.Messages;
+import de.lifemytouch.ansi.punish.PunishmentCategory;
 import de.lifemytouch.ansi.punish.PunishmentService;
 import de.lifemytouch.ansi.punish.PunishmentType;
 import org.bukkit.Bukkit;
@@ -41,7 +42,7 @@ public class KickCommand implements CommandExecutor {
         String reason = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
 
         punishmentService.punish(target.getUniqueId(),
-                player.getUniqueId(), PunishmentType.KICK, reason,
+                player.getUniqueId(), PunishmentType.KICK, PunishmentCategory.OTHER, reason,
                 Duration.ZERO
         );
 

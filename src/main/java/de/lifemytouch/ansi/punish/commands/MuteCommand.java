@@ -3,6 +3,7 @@ package de.lifemytouch.ansi.punish.commands;
 import de.lifemytouch.ansi.core.text.Messages;
 import de.lifemytouch.ansi.punish.DurationParser;
 import de.lifemytouch.ansi.punish.Punishment;
+import de.lifemytouch.ansi.punish.PunishmentCategory;
 import de.lifemytouch.ansi.punish.PunishmentService;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -53,7 +54,7 @@ public class MuteCommand implements CommandExecutor {
                 " ", Arrays.copyOfRange(args, 2, args.length)
         );
 
-        punishmentService.mute(target.getUniqueId(), player.getUniqueId(), reason, duration);
+        punishmentService.mute(target.getUniqueId(), player.getUniqueId(), PunishmentCategory.OTHER, reason, duration);
 
         player.sendMessage(Messages.getPREFIX() + "§7Du hast §6" + target.getName() + "§7 gemuted!");
         target.sendMessage(Messages.getPREFIX() + "§cDu wurdest gemuted!\n"

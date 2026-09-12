@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class PunishmentRepository {
@@ -62,6 +63,8 @@ public class PunishmentRepository {
                 punishment.getPunishmentType().name()
         );
 
+        configuration.set(path + ".category", punishment.getPunishmentCategory().name());
+
         configuration.set(
                 path + ".reason",
                 punishment.getReason()
@@ -114,28 +117,37 @@ public class PunishmentRepository {
         }
 
         try {
+
+            String categoryName = configuration.getString(path + ".category");
+
+            PunishmentCategory punishmentCategory =
+                    categoryName == null
+                            ? PunishmentCategory.OTHER
+                            : PunishmentCategory.valueOf(categoryName);
+
             return new Punishment(
                     UUID.fromString(id),
                     UUID.fromString(
-                            configuration.getString(path + ".target")
+                            Objects.requireNonNull(configuration.getString(path + ".target"))
                     ),
                     UUID.fromString(
-                            configuration.getString(path + ".moderator")
+                            Objects.requireNonNull(configuration.getString(path + ".moderator"))
                     ),
                     PunishmentType.valueOf(
                             configuration.getString(path + ".type")
                     ),
                     configuration.getString(path + ".reason"),
                     Instant.parse(
-                            configuration.getString(path + ".createdAt")
+                            Objects.requireNonNull(configuration.getString(path + ".createdAt"))
                     ),
                     configuration.getString(path + ".expiresAt") == null
                             ? null
                             : Instant.parse(
-                            configuration.getString(
+                            Objects.requireNonNull(configuration.getString(
                                     path + ".expiresAt"
-                            )
-                    )
+                            ))
+                    ),
+                    punishmentCategory
             );
         } catch(Exception exception) {
             plugin.getLogger().warning(

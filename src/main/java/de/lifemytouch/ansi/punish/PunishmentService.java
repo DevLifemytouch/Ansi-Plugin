@@ -14,12 +14,20 @@ public class PunishmentService {
         this.punishmentRepository = punishmentRepository;
     }
 
-    public Punishment punish(UUID target, UUID moderator,
-                             PunishmentType punishmentType, String reason,
-                             Duration duration) {
+    public Punishment punish(
+            UUID target,
+            UUID moderator,
+            PunishmentType punishmentType,
+            PunishmentCategory punishmentCategory,
+            String reason,
+            Duration duration
+    ) {
         Instant createdAt = Instant.now();
 
-        Instant expiresAt = duration == null ? null : createdAt.plus(duration);
+        Instant expiresAt =
+                duration == null
+                        ? null
+                        : createdAt.plus(duration);
 
         Punishment punishment = new Punishment(
                 UUID.randomUUID(),
@@ -28,7 +36,8 @@ public class PunishmentService {
                 punishmentType,
                 reason,
                 createdAt,
-                expiresAt
+                expiresAt,
+                punishmentCategory
         );
 
         punishmentRepository.save(punishment);
@@ -36,12 +45,38 @@ public class PunishmentService {
         return punishment;
     }
 
-    public Punishment ban(UUID target, UUID moderator, String reason, Duration duration) {
-        return punish(target, moderator, PunishmentType.BAN, reason, duration);
+    public Punishment ban(
+            UUID target,
+            UUID moderator,
+            PunishmentCategory punishmentCategory,
+            String reason,
+            Duration duration
+    ) {
+        return punish(
+                target,
+                moderator,
+                PunishmentType.BAN,
+                punishmentCategory,
+                reason,
+                duration
+        );
     }
 
-    public Punishment mute(UUID target, UUID moderator, String reason, Duration duration) {
-        return punish(target, moderator, PunishmentType.MUTE, reason, duration);
+    public Punishment mute(
+            UUID target,
+            UUID moderator,
+            PunishmentCategory punishmentCategory,
+            String reason,
+            Duration duration
+    ) {
+        return punish(
+                target,
+                moderator,
+                PunishmentType.MUTE,
+                punishmentCategory,
+                reason,
+                duration
+        );
     }
 
     public List<Punishment> getPunishments(UUID target) {
@@ -52,6 +87,7 @@ public class PunishmentService {
 
             result.add(punishment);
         }
+
         return result;
     }
 
@@ -59,16 +95,24 @@ public class PunishmentService {
         List<Punishment> result = new ArrayList<>();
 
         for(Punishment punishment : getPunishments(target)) {
-            if(punishment.isActive()) result.add(punishment);
+            if(punishment.isActive()) {
+                result.add(punishment);
+            }
         }
+
         return result;
     }
 
-    public Punishment getActivePunishment(UUID target, PunishmentType punishmentType) {
+    public Punishment getActivePunishment(
+            UUID target,
+            PunishmentType punishmentType
+    ) {
         for(Punishment punishment : getActivePunishments(target)) {
-            if(punishment.getPunishmentType() == punishmentType) return punishment;
+            if(punishment.getPunishmentType() == punishmentType) {
+                return punishment;
+            }
         }
+
         return null;
     }
-
 }

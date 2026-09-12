@@ -40,7 +40,7 @@ public class ReportDetailGUI {
         inventory.setItem(4, createReportInfo(report));
 
         inventory.setItem(
-                11,
+                10,
                 ItemBuilder.createItem(
                         Material.ENDER_EYE,
                         "§b§lBeobachten",
@@ -53,13 +53,24 @@ public class ReportDetailGUI {
         );
 
         inventory.setItem(
-                13,
+                11,
                 ItemBuilder.createItem(
                         Material.COMPASS,
                         "§e§lZum Spieler",
                         Arrays.asList(
                                 "§7Teleportiert dich zum\n",
                                 "§7gemeldeten Spieler"
+                        )
+                )
+        );
+
+        inventory.setItem(
+                13,
+                ItemBuilder.createItem(
+                        Material.ANVIL,
+                        "§c§lBestrafen",
+                        Arrays.asList(
+                                "§7Öffnet die Punishment-Auswahl."
                         )
                 )
         );

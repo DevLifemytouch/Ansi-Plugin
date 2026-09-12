@@ -55,7 +55,7 @@ public class RankCommand implements CommandExecutor {
         Rank rank = Rank.fromName(args[2]);
         if(rank == null) {
             player.sendMessage(Messages.getPREFIX() + "§7Dieser Rang existiert nicht. Nutze: §fowner§7, §fdev§7, " +
-                    "§fadmin§7, §fmod§7, §fmedia§7, §fvip_plus§7, §fvip§7, §fpremium§7, §fdefault§7.");
+                    "§fadmin§7, §fmod§7, §ftester§7, §fbuilder§7, §fmedia§7, §fvip_plus§7, §fvip§7, §fpremium§7, §fdefault§7.");
             return true;
         }
 

@@ -2,6 +2,7 @@ package de.lifemytouch.ansi.punish.commands;
 
 import de.lifemytouch.ansi.core.text.Messages;
 import de.lifemytouch.ansi.punish.DurationParser;
+import de.lifemytouch.ansi.punish.PunishmentCategory;
 import de.lifemytouch.ansi.punish.PunishmentService;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -49,7 +50,7 @@ public class BanCommand implements CommandExecutor {
 
         String reason = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
 
-        punishmentService.ban(target.getUniqueId(), player.getUniqueId(), reason, duration);
+        punishmentService.ban(target.getUniqueId(), player.getUniqueId(), PunishmentCategory.OTHER, reason, duration);
 
         target.kickPlayer(
                 "§cDu wurdest vom Server gebannt!\n\n" + "§7Grund: §6" + reason
