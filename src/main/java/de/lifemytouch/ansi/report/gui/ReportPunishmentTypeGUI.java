@@ -9,7 +9,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class ReportPunishmentTypeGUI {
@@ -17,7 +16,6 @@ public class ReportPunishmentTypeGUI {
     public static final String TITLE = "§c§lPunishment";
 
     private ReportPunishmentTypeGUI() {
-
     }
 
     public static void open(
@@ -51,9 +49,10 @@ public class ReportPunishmentTypeGUI {
                 ItemBuilder.createItem(
                         Material.BOOK,
                         "§6§lBestrafung auswählen",
-                        Arrays.asList(
+                        List.of(
                                 "§7Spieler: §6" + getPlayerName(report),
-                                "§7Kategorie: §6" + getCategoryName(punishmentCategory)
+                                "§7Kategorie: §6"
+                                        + getCategoryName(punishmentCategory)
                         )
                 )
         );
@@ -115,9 +114,7 @@ public class ReportPunishmentTypeGUI {
 
         return name != null
                 ? name
-                : report.getTarget()
-                  .toString()
-                  .substring(0, 8);
+                : report.getTarget().toString().substring(0, 8);
     }
 
     private static String getCategoryName(

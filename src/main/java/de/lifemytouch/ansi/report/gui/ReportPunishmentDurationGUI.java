@@ -17,7 +17,6 @@ public class ReportPunishmentDurationGUI {
     public static final String TITLE = "§c§lBestrafungsdauer";
 
     private ReportPunishmentDurationGUI() {
-
     }
 
     public static void open(
@@ -34,7 +33,13 @@ public class ReportPunishmentDurationGUI {
             return;
         }
 
-        String duration = getDefaultDuration(category);
+        String duration = switch (category) {
+            case MOVEMENT_HACKS -> "7d";
+            case COMBAT_HACKS -> "14d";
+            case INVENTORY_HACKS -> "3d";
+            case EXPLOITS -> "4d";
+            case OTHER -> null;
+        };
 
         ReportPunishmentDurationHolder holder =
                 new ReportPunishmentDurationHolder(
@@ -58,37 +63,36 @@ public class ReportPunishmentDurationGUI {
                         "§6§lBestrafung",
                         List.of(
                                 "§7Spieler: §6" + getPlayerName(report),
-                                "§7Kategorie: §6" + getCategoryName(category),
-                                "§7Typ: §6" + getPunishmentName(punishmentType)
+                                "§7Kategorie: §6"
+                                        + getCategoryName(category),
+                                "§7Typ: §6"
+                                        + getPunishmentName(punishmentType)
                         )
                 )
         );
 
         switch (category) {
+
             case MOVEMENT_HACKS -> setDuration(
                     inventory,
-                    7,
                     "7 Tage",
                     "7d"
             );
 
             case COMBAT_HACKS -> setDuration(
                     inventory,
-                    14,
                     "14 Tage",
                     "14d"
             );
 
             case INVENTORY_HACKS -> setDuration(
                     inventory,
-                    3,
                     "3 Tage",
                     "3d"
             );
 
             case EXPLOITS -> setDuration(
                     inventory,
-                    4,
                     "4 Tage",
                     "4d"
             );
@@ -124,7 +128,6 @@ public class ReportPunishmentDurationGUI {
 
     private static void setDuration(
             Inventory inventory,
-            int days,
             String display,
             String duration
     ) {
@@ -171,18 +174,6 @@ public class ReportPunishmentDurationGUI {
             case BAN -> "Ban";
             case MUTE -> "Mute";
             case KICK -> "Kick";
-        };
-    }
-
-    private static String getDefaultDuration(
-            PunishmentCategory category
-    ) {
-        return switch (category) {
-            case MOVEMENT_HACKS -> "7d";
-            case COMBAT_HACKS -> "14d";
-            case INVENTORY_HACKS -> "3d";
-            case EXPLOITS -> "4d";
-            case OTHER -> null;
         };
     }
 }
