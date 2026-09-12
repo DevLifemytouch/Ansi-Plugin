@@ -74,6 +74,7 @@ public enum Rank {
                     "x§8§4§F§E§4§A§lE§x§8§E§F§F§5§2§lR §8| §7",
             List.of(
                     "ansi.commands.fly",
+                    "ansi.commands.build",
                     "ansi.commands.lobby"
             )
     ),

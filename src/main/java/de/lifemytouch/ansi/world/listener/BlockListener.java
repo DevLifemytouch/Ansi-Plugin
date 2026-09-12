@@ -1,94 +1,74 @@
 package de.lifemytouch.ansi.world.listener;
 
-import org.bukkit.Material;
-import org.bukkit.block.Block;
+import de.lifemytouch.ansi.build.BuildService;
+import de.lifemytouch.ansi.player.listener.PlayerJoinListener;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.function.BooleanSupplier;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityInteractEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 
 public class BlockListener implements Listener {
 
-    private final BooleanSupplier timerRunning;
-    private final BooleanSupplier blockRandomizerEnabled;
+    private BuildService buildService;
 
-    private final Map<Material, Material> blockMappings = new HashMap<>();
-    private final List<Material> randomBlocks = new ArrayList<>();
-
-    private final Random random = new Random();
-
-    public BlockListener(BooleanSupplier timerRunning, BooleanSupplier blockRandomizerEnabled) {
-        this.timerRunning = timerRunning;
-        this.blockRandomizerEnabled = blockRandomizerEnabled;
-
-        loadRandomBlocks();
-    }
-
-    private void loadRandomBlocks() {
-
-        for (Material material : Material.values()) {
-
-            if (!material.isBlock()) {
-                continue;
-            }
-
-            switch (material) {
-                case AIR:
-                case CAVE_AIR:
-                case VOID_AIR:
-                case BEDROCK:
-                case BARRIER:
-                case COMMAND_BLOCK:
-                case CHAIN_COMMAND_BLOCK:
-                case REPEATING_COMMAND_BLOCK:
-                case STRUCTURE_BLOCK:
-                case STRUCTURE_VOID:
-                case JIGSAW:
-                case LIGHT:
-                case SPAWNER:
-                    continue;
-            }
-
-            randomBlocks.add(material);
-        }
+    public BlockListener(BuildService buildService) {
+        this.buildService = buildService;
     }
 
     @EventHandler
     public void onBreak(BlockBreakEvent event) {
 
-        if (!timerRunning.getAsBoolean()) {
-            event.setCancelled(true);
+        Player player = event.getPlayer();
+
+        if(buildService.buildList.contains(player)) {
+            event.setCancelled(false);
             return;
         }
 
-        if (!blockRandomizerEnabled.getAsBoolean()) {
-            return;
-        }
-
-        Block block = event.getBlock();
-        Material original = block.getType();
-
-        Material randomMaterial = blockMappings.get(original);
-
-        if (randomMaterial == null) {
-            randomMaterial = randomBlocks.get(
-                    random.nextInt(randomBlocks.size())
-            );
-
-            blockMappings.put(original, randomMaterial);
-        }
-
-        event.setDropItems(false);
-
-        block.getWorld().dropItemNaturally(
-                block.getLocation(),
-                new org.bukkit.inventory.ItemStack(randomMaterial)
-        );
+        event.setCancelled(true);
     }
+
+    @EventHandler
+    public void onPlace(BlockPlaceEvent event) {
+
+        Player player = event.getPlayer();
+
+        if(buildService.buildList.contains(player)) {
+            event.setCancelled(false);
+            return;
+        }
+
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onEntityInteract(PlayerInteractAtEntityEvent event) {
+
+        Player player = event.getPlayer();
+
+        if(buildService.buildList.contains(player)) {
+            event.setCancelled(false);
+            return;
+        }
+
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onEntityInteract(PlayerInteractEvent event) {
+
+        Player player = event.getPlayer();
+
+        if(buildService.buildList.contains(player)) {
+            event.setCancelled(false);
+            return;
+        }
+
+        event.setCancelled(true);
+    }
+
 }

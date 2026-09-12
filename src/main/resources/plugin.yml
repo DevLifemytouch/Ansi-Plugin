@@ -5,14 +5,10 @@ main: de.lifemytouch.ansi.Ansi
 api-version: '1.21'
 
 commands:
-  timer:
-    description: Verwaltet den Timer
   gm:
     description: Verwaltet den Gamemode eines Spielers
   rang:
     description: Verwaltet den Rang eines Spielers
-  challenge:
-    description: Verwaltet Challenges
   report:
     description: Meldet einen Spieler
   reports:
@@ -33,3 +29,5 @@ commands:
     description: Hebt die Sperre eines Spielers auf
   lobby:
     description: Teleportiert dich zum Spawn der Lobby
+  build:
+    description: Erlaubt dem Spieler das Bauen

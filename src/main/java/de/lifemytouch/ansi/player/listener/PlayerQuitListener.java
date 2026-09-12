@@ -1,7 +1,5 @@
 package de.lifemytouch.ansi.player.listener;
 
-import de.lifemytouch.ansi.challenge.item.ItemChallengeManager;
-import de.lifemytouch.ansi.challenge.mob.MobChallengeManager;
 import de.lifemytouch.ansi.rank.RankManager;
 import de.lifemytouch.ansi.report.ReportObservationService;
 import org.bukkit.entity.Player;
@@ -12,16 +10,10 @@ import org.bukkit.event.player.PlayerQuitEvent;
 public class PlayerQuitListener implements Listener {
 
     private final RankManager rankManager;
-    private final ItemChallengeManager itemChallengeManager;
-    private final MobChallengeManager mobChallengeManager;
     private final ReportObservationService reportObservationService;
 
-    public PlayerQuitListener(RankManager rankManager, ItemChallengeManager itemChallengeManager,
-                              MobChallengeManager mobChallengeManager,
-                              ReportObservationService reportObservationService) {
+    public PlayerQuitListener(RankManager rankManager, ReportObservationService reportObservationService) {
         this.rankManager = rankManager;
-        this.itemChallengeManager = itemChallengeManager;
-        this.mobChallengeManager = mobChallengeManager;
         this.reportObservationService = reportObservationService;
     }
 
@@ -33,8 +25,6 @@ public class PlayerQuitListener implements Listener {
 
         reportObservationService.stop(player);
         rankManager.clearPermission(player);
-        itemChallengeManager.removePlayer(player);
-        mobChallengeManager.removePlayer(player);
     }
 
 }
