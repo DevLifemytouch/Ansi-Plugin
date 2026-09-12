@@ -2,6 +2,7 @@ package de.lifemytouch.ansi.report.listener;
 
 import de.lifemytouch.ansi.core.text.Messages;
 import de.lifemytouch.ansi.punish.PunishmentCategory;
+import de.lifemytouch.ansi.punish.PunishmentType;
 import de.lifemytouch.ansi.report.*;
 import de.lifemytouch.ansi.report.gui.*;
 import org.bukkit.Bukkit;
@@ -58,6 +59,13 @@ public class ReportInventoryListener implements Listener {
             event.setCancelled(true);
 
             handleReportPunishmentType(event, player, holder);
+            return;
+        }
+
+        if(event.getView().getTopInventory().getHolder() instanceof ReportPunishmentDurationHolder holder) {
+            event.setCancelled(true);
+
+            handleReportPunishmentDuration(event, player, holder);
             return;
         }
 
@@ -268,15 +276,11 @@ public class ReportInventoryListener implements Listener {
 
                     reportObservationService.stop(player);
 
-                    reportDetailHolder.getReportService().resolveReport(report.getId(), player.getUniqueId());
-                    player.sendMessage(Messages.getPREFIX()
-                            + "§7Report §6#" + report.getId() + "§7 wurde §aabgeschlossen§f.");
-
-                    reporter.sendMessage(Messages.getPREFIX() + "§7Dein Report gegen §6"
-                            + reported.getName() + "§7 wurde von einem Teammitglied bearbeitet. " +
-                            "Danke für deine Mithilfe!");
-
-                    player.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1, 2);
+                    completeReport(
+                            player,
+                            reportDetailHolder.getReportService(),
+                            report
+                    );
                 }
 
 
@@ -363,24 +367,128 @@ public class ReportInventoryListener implements Listener {
         }
 
         switch(slot) {
-            case 11 -> player.sendMessage(
-                    Messages.getPREFIX() +
-                            "§7Ausgewählt: §4§lBan"
-            );
+            case 11 -> {
+                ReportPunishmentDurationGUI.open(
+                        player,
+                        holder.getReportService(),
+                        holder.getReportId(),
+                        holder.getPunishmentCategory(),
+                        PunishmentType.BAN
+                );
+            }
 
-            case 13 -> player.sendMessage(
-                    Messages.getPREFIX() +
-                            "§7Ausgewählt: §c§lMute"
-            );
+            case 13 -> {
+                ReportPunishmentDurationGUI.open(
+                        player,
+                        holder.getReportService(),
+                        holder.getReportId(),
+                        holder.getPunishmentCategory(),
+                        PunishmentType.MUTE
+                );
+            }
 
-            case 15 -> player.sendMessage(
-                    Messages.getPREFIX() +
-                            "§7Ausgewählt: §e§lKick"
-            );
+            case 15 -> {
+                player.sendMessage(
+                        Messages.getPREFIX() +
+                                "§eKick §eausgewählt."
+                );
+
+            }
 
             default -> {
             }
         }
     }
 
+    private void handleReportPunishmentDuration(
+            InventoryClickEvent event,
+            Player player,
+            ReportPunishmentDurationHolder holder
+    ) {
+        int slot = event.getRawSlot();
+
+        if(slot == 22) {
+            ReportPunishmentTypeGUI.open(
+                    player,
+                    holder.getReportService(),
+                    holder.getReportId(),
+                    holder.getPunishmentCategory()
+            );
+            return;
+        }
+
+        if(slot != 13) {
+            return;
+        }
+
+        String duration = switch(holder.getPunishmentCategory()) {
+            case MOVEMENT_HACKS -> "7d";
+            case COMBAT_HACKS -> "14d";
+            case INVENTORY_HACKS -> "3d";
+            case EXPLOITS -> "4d";
+            case OTHER -> null;
+        };
+
+        if(holder.getPunishmentCategory() == PunishmentCategory.OTHER) {
+            player.closeInventory();
+
+            player.sendMessage(
+                    Messages.getPREFIX() +
+                            "§7Gib die Dauer ein. "
+            );
+
+            return;
+        }
+
+        player.sendMessage(
+                Messages.getPREFIX() +
+                        "§7Ausgewählt: §6" + duration
+        );
+    }
+
+    private void completeReport(
+            Player moderator,
+            ReportService reportService,
+            Report report
+    ) {
+        Player reporter = Bukkit.getPlayer(report.getReporter());
+        Player reported = Bukkit.getPlayer(report.getTarget());
+
+        reportObservationService.stop(moderator);
+
+        reportService.resolveReport(
+                report.getId(),
+                moderator.getUniqueId()
+        );
+
+        moderator.sendMessage(
+                Messages.getPREFIX()
+                        + "§7Report §6#" + report.getId()
+                        + "§7 wurde §aabgeschlossen§f."
+        );
+
+        if (reporter != null) {
+            moderator.sendMessage(
+                    Messages.getPREFIX()
+                            + "§7Der Reporter wurde informiert."
+            );
+
+            reporter.sendMessage(
+                    Messages.getPREFIX()
+                            + "§7Dein Report gegen §6"
+                            + (reported != null
+                            ? reported.getName()
+                            : "den Spieler")
+                            + "§7 wurde von einem Teammitglied bearbeitet. "
+                            + "Danke für deine Mithilfe!"
+            );
+        }
+
+        moderator.playSound(
+                moderator,
+                Sound.ENTITY_PLAYER_LEVELUP,
+                1,
+                2
+        );
+    }
 }
