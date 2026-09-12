@@ -1,6 +1,7 @@
 package de.lifemytouch.ansi.report.listener;
 
 import de.lifemytouch.ansi.core.text.Messages;
+import de.lifemytouch.ansi.punish.PunishmentCategory;
 import de.lifemytouch.ansi.report.*;
 import de.lifemytouch.ansi.report.gui.*;
 import org.bukkit.Bukkit;
@@ -43,6 +44,13 @@ public class ReportInventoryListener implements Listener {
             event.setCancelled(true);
 
             handleReportDetail(event, player, holder);
+            return;
+        }
+
+        if(event.getView().getTopInventory().getHolder() instanceof ReportPunishmentHolder holder) {
+            event.setCancelled(true);
+
+            handleReportPunishment(event, player, holder);
             return;
         }
 
@@ -292,6 +300,42 @@ public class ReportInventoryListener implements Listener {
 
         }
 
+    }
+
+    private void handleReportPunishment(
+            InventoryClickEvent event,
+            Player player,
+            ReportPunishmentHolder holder
+    ) {
+        int slot = event.getRawSlot();
+
+        if(slot == 22) {
+            ReportDetailGUI.open(
+                    player,
+                    holder.getReportService(),
+                    holder.getReportId()
+            );
+            return;
+        }
+
+        PunishmentCategory category = switch(slot) {
+            case 10 -> PunishmentCategory.MOVEMENT_HACKS;
+            case 12 -> PunishmentCategory.COMBAT_HACKS;
+            case 14 -> PunishmentCategory.INVENTORY_HACKS;
+            case 16 -> PunishmentCategory.EXPLOITS;
+            case 20 -> PunishmentCategory.OTHER;
+            default -> null;
+        };
+
+        if(category == null) {
+            return;
+        }
+
+        player.sendMessage(
+                Messages.getPREFIX()
+                        + "§7Ausgewählte Kategorie: §6"
+                        + category.name()
+        );
     }
 
 }
