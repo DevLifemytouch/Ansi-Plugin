@@ -153,7 +153,8 @@ public final class Ansi extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MobChallengeListener(mobChallengeManager), this);
         getServer().getPluginManager().registerEvents(new BlockListener(timerManager::isRunning,
                 challengeSettingManager::isBlockRandomizer), this);
-        getServer().getPluginManager().registerEvents(new ReportInventoryListener(reportObservationService), this);
+        getServer().getPluginManager().registerEvents(new ReportInventoryListener(reportObservationService,
+                punishmentService), this);
         getServer().getPluginManager().registerEvents(new PunishmentListener(punishmentService), this);
 
         // TabCompleter
