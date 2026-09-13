@@ -2,12 +2,17 @@ package de.lifemytouch.ansi.rank;
 
 import de.lifemytouch.ansi.Ansi;
 import de.lifemytouch.ansi.core.text.Messages;
+import de.lifemytouch.ansi.core.time.DurationParser;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class RankCommand implements CommandExecutor {
 
@@ -37,6 +42,8 @@ public class RankCommand implements CommandExecutor {
                 return handleSet(player, args);
             case "info":
                 return handleInfo(player, args);
+            case "temp":
+                return handleTemp(player, args);
             default:
                 player.sendMessage(Messages.getPREFIX() + "§7/rang set <spieler> <rang>");
                 player.sendMessage(Messages.getPREFIX() + "§7/rang info §8<spieler>");
@@ -87,6 +94,73 @@ public class RankCommand implements CommandExecutor {
         Rank rank = rankManager.getRank(target);
 
         player.sendMessage(Messages.getPREFIX() + "§6§l" + target.getName() + "§7 hat den Rang §f" + rank.name() + "§7.");
+        return true;
+    }
+
+    private boolean handleTemp(Player player, String[] args) {
+
+        if (args.length != 4) {
+            player.sendMessage(Messages.getPREFIX() + "§7/rang temp <spieler> <rang> <dauer>");
+            return false;
+        }
+
+        Rank rank = Rank.fromName(args[2]);
+
+        if (rank == null) {
+            player.sendMessage(Messages.getPREFIX() + "§cDieser Rang existiert nicht.");
+            return true;
+        }
+
+        java.time.Duration duration;
+
+        try {
+            duration = DurationParser.parse(args[3]);
+        } catch (IllegalArgumentException exception) {
+            player.sendMessage(Messages.getPREFIX() + "§cUngültige Dauer!");
+            return true;
+        }
+
+        if (duration == null) {
+            player.sendMessage(Messages.getPREFIX() + "§cEin temporärer Rang kann nicht permanent sein.");
+            player.sendMessage(Messages.getPREFIX() + "§7Nutze: /rang set <Spieler> <Rang>");
+            return true;
+        }
+
+        OfflinePlayer target = Bukkit.getOfflinePlayer(args[1]);
+
+        long durationMillis = duration.toMillis();
+
+        rankManager.setTemporaryRank(
+                target,
+                rank,
+                durationMillis
+        );
+
+        if (target.isOnline()) {
+
+            Player onlineTarget = target.getPlayer();
+
+            if (onlineTarget != null) {
+                onlineTarget.kickPlayer(
+                        "§cDein Rang hat sich verändert!\n\n" +
+                                "§7Du hast vorübergehend den Rang §f" +
+                                rank.name() +
+                                " §7erhalten.\n\n" +
+                                "§7Bitte verbinde dich erneut!"
+                );
+            }
+        }
+
+        player.sendMessage(
+                Messages.getPREFIX() +
+                        "§6§l" + target.getName() +
+                        " §7hat vorübergehend den Rang §f" +
+                        rank.name() +
+                        " §7für §f" +
+                        args[3] +
+                        " §7erhalten."
+        );
+
         return true;
     }
 }

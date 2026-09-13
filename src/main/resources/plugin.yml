@@ -28,6 +28,9 @@ commands:
   unpunish:
     description: Hebt die Sperre eines Spielers auf
   lobby:
+    aliases: spawn
     description: Teleportiert dich zum Spawn der Lobby
   build:
     description: Erlaubt dem Spieler das Bauen
+  friend:
+    description: Freunde

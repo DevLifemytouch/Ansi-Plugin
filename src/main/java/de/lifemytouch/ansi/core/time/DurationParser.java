@@ -1,4 +1,4 @@
-package de.lifemytouch.ansi.punish;
+package de.lifemytouch.ansi.core.time;
 
 import java.time.Duration;
 

@@ -1,8 +1,7 @@
 package de.lifemytouch.ansi.punish.commands;
 
 import de.lifemytouch.ansi.core.text.Messages;
-import de.lifemytouch.ansi.punish.DurationParser;
-import de.lifemytouch.ansi.punish.Punishment;
+import de.lifemytouch.ansi.core.time.DurationParser;
 import de.lifemytouch.ansi.punish.PunishmentCategory;
 import de.lifemytouch.ansi.punish.PunishmentService;
 import org.bukkit.Bukkit;

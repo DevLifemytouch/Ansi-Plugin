@@ -23,6 +23,7 @@ public class GamemodeCommand implements CommandExecutor {
 
         if(args.length == 0) {
             player.sendMessage(Messages.getPREFIX() + "§7Dein Spielmodus: §6§l" + player.getGameMode());
+            return true;
         }
 
         String gamemode = args[0];

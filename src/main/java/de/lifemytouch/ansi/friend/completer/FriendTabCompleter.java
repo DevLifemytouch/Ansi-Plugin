@@ -1,4 +1,4 @@
-package de.lifemytouch.ansi.rank;
+package de.lifemytouch.ansi.friend.completer;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -6,19 +6,19 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class RankCompleter implements TabCompleter {
+public class FriendTabCompleter implements TabCompleter {
 
-    private static final List<String> SUBCOMMANDS = Arrays.asList("set", "temp", "info");
-    private static final List<String> RANKS = Arrays.asList("owner", "dev", "admin", "mod", "tester", "builder",
-            "media", "vipp", "vip", "prem", "default");
+    private static final List<String> SUBCOMMANDS = Arrays.asList("add", "deny", "accept", "remove", "list", "help");
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+        List<String> completions = new ArrayList<>();
 
         if(args.length == 1) {
             return SUBCOMMANDS.stream()
@@ -26,22 +26,13 @@ public class RankCompleter implements TabCompleter {
                     .collect(Collectors.toList());
         }
 
-        if(args.length == 2 && (args[0].equalsIgnoreCase("set")
-                || args[0].equalsIgnoreCase("info"))
-                || args[0].equalsIgnoreCase("temp")) {
-
+        if(args.length == 2 && !(args[1].equalsIgnoreCase("list") || args[1].equalsIgnoreCase("help"))) {
             String input = args[1].toLowerCase();
 
             return Arrays.stream(Bukkit.getOfflinePlayers())
                     .map(OfflinePlayer::getName)
                     .filter(Objects::nonNull)
                     .filter(name -> name.toLowerCase().startsWith(input))
-                    .collect(Collectors.toList());
-        }
-
-        if(args.length == 3 && (args[0].equalsIgnoreCase("set") || args[0].equalsIgnoreCase("temp"))) {
-            return RANKS.stream()
-                    .filter(rang -> rang.startsWith(args[2].toLowerCase()))
                     .collect(Collectors.toList());
         }
 

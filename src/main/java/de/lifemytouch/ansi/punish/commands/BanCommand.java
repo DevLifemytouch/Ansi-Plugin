@@ -1,7 +1,7 @@
 package de.lifemytouch.ansi.punish.commands;
 
 import de.lifemytouch.ansi.core.text.Messages;
-import de.lifemytouch.ansi.punish.DurationParser;
+import de.lifemytouch.ansi.core.time.DurationParser;
 import de.lifemytouch.ansi.punish.PunishmentCategory;
 import de.lifemytouch.ansi.punish.PunishmentService;
 import org.bukkit.Bukkit;
@@ -11,7 +11,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.nio.Buffer;
 import java.time.Duration;
 import java.util.Arrays;
 

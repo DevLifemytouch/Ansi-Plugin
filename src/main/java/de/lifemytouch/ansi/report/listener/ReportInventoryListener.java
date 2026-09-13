@@ -1,7 +1,7 @@
 package de.lifemytouch.ansi.report.listener;
 
 import de.lifemytouch.ansi.core.text.Messages;
-import de.lifemytouch.ansi.punish.DurationParser;
+import de.lifemytouch.ansi.core.time.DurationParser;
 import de.lifemytouch.ansi.punish.PunishmentCategory;
 import de.lifemytouch.ansi.punish.PunishmentService;
 import de.lifemytouch.ansi.punish.PunishmentType;

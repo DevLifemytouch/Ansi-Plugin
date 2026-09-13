@@ -3,6 +3,10 @@ package de.lifemytouch.ansi;
 import de.lifemytouch.ansi.build.BuildCommand;
 import de.lifemytouch.ansi.build.BuildService;
 import de.lifemytouch.ansi.fly.FlyCommand;
+import de.lifemytouch.ansi.friend.FriendRepository;
+import de.lifemytouch.ansi.friend.FriendService;
+import de.lifemytouch.ansi.friend.commands.FriendCommand;
+import de.lifemytouch.ansi.friend.completer.FriendTabCompleter;
 import de.lifemytouch.ansi.gamemode.GamemodeCommand;
 import de.lifemytouch.ansi.player.listener.*;
 import de.lifemytouch.ansi.punish.PunishmentRepository;
@@ -28,6 +32,7 @@ import de.lifemytouch.ansi.world.listener.BlockListener;
 import de.lifemytouch.ansi.world.listener.HotbarListener;
 import de.lifemytouch.ansi.world.listener.InventoryListener;
 import de.lifemytouch.ansi.world.listener.WorldListener;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.awt.*;
@@ -42,6 +47,8 @@ public final class Ansi extends JavaPlugin {
     private PunishmentService punishmentService;
     private PunishmentRepository punishmentRepository;
     private BuildService buildService;
+    private FriendService friendService;
+    private FriendRepository friendRepository;
 
     static Color start = new Color(0, 105, 130);
     static Color end   = new Color(94, 234, 255);
@@ -54,6 +61,14 @@ public final class Ansi extends JavaPlugin {
         rankManager = new RankManager(this, TabListManager::updatePrefix);
         reportRepository = new ReportRepository(this);
         reportService = new ReportService(reportRepository);
+        friendRepository = new FriendRepository(this);
+
+        Bukkit.getScheduler().runTaskTimer(
+                this,
+                rankManager::checkExpiredRanks,
+                20L,
+                20L * 60L
+        );
 
         // Vanish Systeme
 
@@ -66,6 +81,9 @@ public final class Ansi extends JavaPlugin {
 
         // Build
         buildService = new BuildService(this);
+
+        // Friend
+        friendService = new FriendService(friendRepository);
 
         register();
     }
@@ -90,6 +108,7 @@ public final class Ansi extends JavaPlugin {
         getCommand("unpunish").setExecutor(new UnpunishCommand(punishmentService));
         getCommand("lobby").setExecutor(new LobbyCommand());
         getCommand("build").setExecutor(new BuildCommand(buildService));
+        getCommand("friend").setExecutor(new FriendCommand(friendService));
 
         // Listener
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(rankManager, TabListManager::updatePrefix), this);
@@ -107,5 +126,6 @@ public final class Ansi extends JavaPlugin {
         // TabCompleter
         getCommand("rang").setTabCompleter(new RankCompleter());
         getCommand("ban").setTabCompleter(new BanTabCompleter());
+        getCommand("friend").setTabCompleter(new FriendTabCompleter());
     }
 }
