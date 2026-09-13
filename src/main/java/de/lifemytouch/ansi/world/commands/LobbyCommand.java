@@ -28,6 +28,7 @@ public class LobbyCommand implements CommandExecutor {
 
         player.teleport(new Location(player.getWorld(), -1487.5, 35, 854.5, 0,0));
         player.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 1, 1);
+        player.sendMessage(Messages.getPREFIX() + "§7Du wurdest zum Spawn teleportiert!");
 
         return false;
     }

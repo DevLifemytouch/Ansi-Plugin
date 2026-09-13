@@ -25,6 +25,9 @@ import de.lifemytouch.ansi.vanish.VanishCommand;
 import de.lifemytouch.ansi.vanish.VanishService;
 import de.lifemytouch.ansi.world.commands.LobbyCommand;
 import de.lifemytouch.ansi.world.listener.BlockListener;
+import de.lifemytouch.ansi.world.listener.HotbarListener;
+import de.lifemytouch.ansi.world.listener.InventoryListener;
+import de.lifemytouch.ansi.world.listener.WorldListener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.awt.*;
@@ -97,6 +100,9 @@ public final class Ansi extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ReportInventoryListener(reportObservationService,
                 punishmentService), this);
         getServer().getPluginManager().registerEvents(new PunishmentListener(punishmentService), this);
+        getServer().getPluginManager().registerEvents(new WorldListener(), this);
+        getServer().getPluginManager().registerEvents(new HotbarListener(), this);
+        getServer().getPluginManager().registerEvents(new InventoryListener(), this);
 
         // TabCompleter
         getCommand("rang").setTabCompleter(new RankCompleter());

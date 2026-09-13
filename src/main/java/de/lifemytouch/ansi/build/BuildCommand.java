@@ -1,9 +1,8 @@
 package de.lifemytouch.ansi.build;
 
 import de.lifemytouch.ansi.core.text.Messages;
-import de.lifemytouch.ansi.player.listener.PlayerJoinListener;
+import de.lifemytouch.ansi.world.inventories.LobbyHotbar;
 import org.bukkit.GameMode;
-import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -35,10 +34,13 @@ public class BuildCommand implements CommandExecutor {
         if(buildService.buildList.contains(player)) {
             buildService.setBuildMode(player, false);
             player.setGameMode(GameMode.SURVIVAL);
+            player.getInventory().clear();
+            LobbyHotbar.setSpawnItems(player);
             player.sendMessage(Messages.getPREFIX() + "§7Du bist nun nicht mehr im Build-Modus!");
         } else {
             buildService.setBuildMode(player, true);
             player.setGameMode(GameMode.CREATIVE);
+            player.getInventory().clear();
             player.sendMessage(Messages.getPREFIX() + "§7Du bist nun im Build-Modus!");
         }
 
