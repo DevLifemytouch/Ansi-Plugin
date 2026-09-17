@@ -34,3 +34,5 @@ commands:
     description: Erlaubt dem Spieler das Bauen
   friend:
     description: Freunde
+  coins:
+    description: Verwaltet die Coins eines Spielers

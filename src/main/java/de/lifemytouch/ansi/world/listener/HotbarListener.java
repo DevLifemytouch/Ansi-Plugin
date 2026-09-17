@@ -1,5 +1,8 @@
 package de.lifemytouch.ansi.world.listener;
 
+import de.lifemytouch.ansi.coin.CoinService;
+import de.lifemytouch.ansi.cosmetic.CosmeticRegistry;
+import de.lifemytouch.ansi.cosmetic.CosmeticService;
 import de.lifemytouch.ansi.world.inventories.CosmeticsInventory;
 import de.lifemytouch.ansi.world.inventories.LobbySwitcherInventory;
 import de.lifemytouch.ansi.world.inventories.NavInventory;
@@ -13,6 +16,17 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class HotbarListener implements Listener {
+
+    private final CosmeticService cosmeticService;
+    private final CosmeticRegistry cosmeticRegistry;
+
+    public HotbarListener(
+            CosmeticService cosmeticService,
+            CosmeticRegistry cosmeticRegistry
+    ) {
+        this.cosmeticService = cosmeticService;
+        this.cosmeticRegistry = cosmeticRegistry;
+    }
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
@@ -55,7 +69,7 @@ public class HotbarListener implements Listener {
 
     private void onCosmeticsClick(Player player, PlayerInteractEvent event) {
         event.setCancelled(true);
-        CosmeticsInventory.open(player);
+        CosmeticsInventory.open(player, cosmeticRegistry, cosmeticService);
     }
 
     private void onProfileClick(Player player, PlayerInteractEvent event) {

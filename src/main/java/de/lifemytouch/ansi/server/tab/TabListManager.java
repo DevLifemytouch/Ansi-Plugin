@@ -1,26 +1,28 @@
 package de.lifemytouch.ansi.server.tab;
 
-import de.lifemytouch.ansi.rank.Rank;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.Team;
 
 public class TabListManager {
 
-    public static void updatePrefix(Player player) {
-        Scoreboard scoreboard = player.getServer().getScoreboardManager().getMainScoreboard();
+    public static void update(Player player) {
 
-        Rank rank = Rank.getHighest(player);
-
-        Team team = scoreboard.getTeam(rank.getTeamName());
-        if (team == null) {
-            team = scoreboard.registerNewTeam(rank.getTeamName());
-        }
-
-        team.setPrefix(rank.getPrefix());
-        team.setColor(ChatColor.GRAY);
-        team.addEntry(player.getName());
+        updateHeaderFooter(player);
     }
 
+    private static void updateHeaderFooter(Player player) {
+
+        player.setPlayerListHeader(
+                "§6§lANSI\n" +
+                "§7Willkommen auf dem Server!\n");
+
+        player.setPlayerListFooter(
+                "\n"
+                        + "§7Online: §a"
+                        + player.getServer().getOnlinePlayers().size()
+                        + "§7/§a"
+                        + player.getServer().getMaxPlayers()
+                        + "\n\n"
+                        + "§7play.ansi.de"
+        );
+    }
 }

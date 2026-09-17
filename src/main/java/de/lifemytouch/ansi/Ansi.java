@@ -2,6 +2,13 @@ package de.lifemytouch.ansi;
 
 import de.lifemytouch.ansi.build.BuildCommand;
 import de.lifemytouch.ansi.build.BuildService;
+import de.lifemytouch.ansi.coin.CoinRepository;
+import de.lifemytouch.ansi.coin.CoinService;
+import de.lifemytouch.ansi.coin.commands.CoinsCommand;
+import de.lifemytouch.ansi.coin.completer.CoinsCompleter;
+import de.lifemytouch.ansi.cosmetic.CosmeticRegistry;
+import de.lifemytouch.ansi.cosmetic.CosmeticRepository;
+import de.lifemytouch.ansi.cosmetic.CosmeticService;
 import de.lifemytouch.ansi.fly.FlyCommand;
 import de.lifemytouch.ansi.friend.FriendRepository;
 import de.lifemytouch.ansi.friend.FriendService;
@@ -22,6 +29,8 @@ import de.lifemytouch.ansi.report.ReportService;
 import de.lifemytouch.ansi.report.commands.ReportsCommand;
 import de.lifemytouch.ansi.report.listener.ReportInventoryListener;
 import de.lifemytouch.ansi.server.listener.MotdListener;
+import de.lifemytouch.ansi.server.scoreboard.ScoreboardListener;
+import de.lifemytouch.ansi.server.scoreboard.ScoreboardManager;
 import de.lifemytouch.ansi.server.tab.TabListManager;
 import de.lifemytouch.ansi.rank.RankCompleter;
 import de.lifemytouch.ansi.rank.RankManager;
@@ -33,6 +42,7 @@ import de.lifemytouch.ansi.world.listener.HotbarListener;
 import de.lifemytouch.ansi.world.listener.InventoryListener;
 import de.lifemytouch.ansi.world.listener.WorldListener;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.awt.*;
@@ -49,19 +59,95 @@ public final class Ansi extends JavaPlugin {
     private BuildService buildService;
     private FriendService friendService;
     private FriendRepository friendRepository;
+    private CoinService coinService;
+    private CoinRepository coinRepository;
+    private CosmeticRepository cosmeticRepository;
+    private CosmeticService cosmeticService;
+    private CosmeticRegistry cosmeticRegistry;
+    private ScoreboardManager scoreboardManager;
 
     static Color start = new Color(0, 105, 130);
     static Color end   = new Color(94, 234, 255);
 
     @Override
     public void onEnable() {
+        registerDependencies();
+        registerCommands();
+        registerListeners();
+        registerCompleters();
+    }
 
+    @Override
+    public void onDisable() {
+    }
+
+    private void registerCommands() {
+        getCommand("gm").setExecutor(new GamemodeCommand());
+        getCommand("rang").setExecutor(new RankCommand(rankManager));
+        getCommand("report").setExecutor(new ReportCommand(reportService));
+        getCommand("reports").setExecutor(new ReportsCommand(reportService));
+        getCommand("fly").setExecutor(new FlyCommand());
+        getCommand("vanish").setExecutor(new VanishCommand(vanishService));
+        getCommand("ban").setExecutor(new BanCommand(punishmentService));
+        getCommand("mute").setExecutor(new MuteCommand(punishmentService));
+        getCommand("kick").setExecutor(new KickCommand(punishmentService));
+        getCommand("history").setExecutor(new HistoryCommand(punishmentService));
+        getCommand("unpunish").setExecutor(new UnpunishCommand(punishmentService));
+        getCommand("lobby").setExecutor(new LobbyCommand());
+        getCommand("build").setExecutor(new BuildCommand(buildService));
+        getCommand("friend").setExecutor(new FriendCommand(friendService));
+        getCommand("coins").setExecutor(new CoinsCommand(coinService));
+    }
+
+    private void registerListeners() {
+        getServer().getPluginManager().registerEvents(
+                new PlayerJoinListener(rankManager, scoreboardManager), this);
+        getServer().getPluginManager().registerEvents(
+                new PlayerQuitListener(this, rankManager, reportObservationService, scoreboardManager), this);
+        getServer().getPluginManager().registerEvents(new PlayerChatListener(), this);
+        getServer().getPluginManager().registerEvents(new MotdListener(), this);
+        getServer().getPluginManager().registerEvents(new BlockListener(buildService), this);
+        getServer().getPluginManager().registerEvents(new ReportInventoryListener(reportObservationService,
+                punishmentService), this);
+        getServer().getPluginManager().registerEvents(new PunishmentListener(punishmentService), this);
+        getServer().getPluginManager().registerEvents(new WorldListener(), this);
+        getServer().getPluginManager().registerEvents(new HotbarListener(cosmeticService, cosmeticRegistry), this);
+        getServer().getPluginManager().registerEvents(new InventoryListener(coinService,
+                cosmeticService, cosmeticRegistry), this);
+        getServer().getPluginManager().registerEvents(new ScoreboardListener(scoreboardManager), this);
+    }
+
+    private void registerCompleters() {
+        getCommand("rang").setTabCompleter(new RankCompleter());
+        getCommand("ban").setTabCompleter(new BanTabCompleter());
+        getCommand("friend").setTabCompleter(new FriendTabCompleter());
+        getCommand("coins").setTabCompleter(new CoinsCompleter());
+    }
+
+    private void registerDependencies() {
         // Core Systeme
 
-        rankManager = new RankManager(this, TabListManager::updatePrefix);
+        rankManager = new RankManager(
+                this,
+                player -> {
+                    scoreboardManager.updateScoreboard(player);
+                    scoreboardManager.updateTabListForAll();
+                }
+        );
         reportRepository = new ReportRepository(this);
         reportService = new ReportService(reportRepository);
         friendRepository = new FriendRepository(this);
+
+        coinRepository = new CoinRepository(this);
+        coinService = new CoinService(coinRepository);
+
+        cosmeticRepository = new CosmeticRepository(this);
+        cosmeticService = new CosmeticService(cosmeticRepository);
+        cosmeticRegistry = new CosmeticRegistry();
+
+        scoreboardManager = new ScoreboardManager(rankManager, coinService);
+
+        coinService.setScoreboardUpdater(scoreboardManager::updateScoreboard);
 
         Bukkit.getScheduler().runTaskTimer(
                 this,
@@ -84,48 +170,5 @@ public final class Ansi extends JavaPlugin {
 
         // Friend
         friendService = new FriendService(friendRepository);
-
-        register();
-    }
-
-    @Override
-    public void onDisable() {
-    }
-
-    public void register() {
-
-        // Commands
-        getCommand("gm").setExecutor(new GamemodeCommand());
-        getCommand("rang").setExecutor(new RankCommand(rankManager));
-        getCommand("report").setExecutor(new ReportCommand(reportService));
-        getCommand("reports").setExecutor(new ReportsCommand(reportService));
-        getCommand("fly").setExecutor(new FlyCommand());
-        getCommand("vanish").setExecutor(new VanishCommand(vanishService));
-        getCommand("ban").setExecutor(new BanCommand(punishmentService));
-        getCommand("mute").setExecutor(new MuteCommand(punishmentService));
-        getCommand("kick").setExecutor(new KickCommand(punishmentService));
-        getCommand("history").setExecutor(new HistoryCommand(punishmentService));
-        getCommand("unpunish").setExecutor(new UnpunishCommand(punishmentService));
-        getCommand("lobby").setExecutor(new LobbyCommand());
-        getCommand("build").setExecutor(new BuildCommand(buildService));
-        getCommand("friend").setExecutor(new FriendCommand(friendService));
-
-        // Listener
-        getServer().getPluginManager().registerEvents(new PlayerJoinListener(rankManager, TabListManager::updatePrefix), this);
-        getServer().getPluginManager().registerEvents(new PlayerQuitListener(rankManager, reportObservationService), this);
-        getServer().getPluginManager().registerEvents(new PlayerChatListener(), this);
-        getServer().getPluginManager().registerEvents(new MotdListener(), this);
-        getServer().getPluginManager().registerEvents(new BlockListener(buildService), this);
-        getServer().getPluginManager().registerEvents(new ReportInventoryListener(reportObservationService,
-                punishmentService), this);
-        getServer().getPluginManager().registerEvents(new PunishmentListener(punishmentService), this);
-        getServer().getPluginManager().registerEvents(new WorldListener(), this);
-        getServer().getPluginManager().registerEvents(new HotbarListener(), this);
-        getServer().getPluginManager().registerEvents(new InventoryListener(), this);
-
-        // TabCompleter
-        getCommand("rang").setTabCompleter(new RankCompleter());
-        getCommand("ban").setTabCompleter(new BanTabCompleter());
-        getCommand("friend").setTabCompleter(new FriendTabCompleter());
     }
 }

@@ -174,6 +174,11 @@ public enum Rank {
     }
 
     public static Rank fromName(String name) {
+
+        if (name == null || name.isBlank()) {
+            return null;
+        }
+
         try {
             return valueOf(name.toUpperCase());
         } catch (IllegalArgumentException e) {

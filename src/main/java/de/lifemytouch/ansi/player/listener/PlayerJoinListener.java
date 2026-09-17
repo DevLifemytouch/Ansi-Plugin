@@ -2,32 +2,41 @@ package de.lifemytouch.ansi.player.listener;
 
 import de.lifemytouch.ansi.core.text.Messages;
 import de.lifemytouch.ansi.rank.RankManager;
+import de.lifemytouch.ansi.server.scoreboard.ScoreboardListener;
+import de.lifemytouch.ansi.server.scoreboard.ScoreboardManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-import java.util.function.Consumer;
-
 public class PlayerJoinListener implements Listener {
 
     private final RankManager rankManager;
+    private final ScoreboardManager scoreboardManager;
 
-    private final Consumer<Player> updateTabList;
-
-    public PlayerJoinListener(RankManager rankManager, Consumer<Player> updateTabList) {
+    public PlayerJoinListener(RankManager rankManager, ScoreboardManager scoreboardManager) {
         this.rankManager = rankManager;
-        this.updateTabList = updateTabList;
+        this.scoreboardManager = scoreboardManager;
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
+
         Player player = event.getPlayer();
 
         rankManager.applyPermission(player);
-        updateTabList.accept(player);
 
-        player.sendMessage(Messages.getPREFIX() + "§7Willkommen auf " + Messages.getANSI_GRADIENT() + "'s §7Server!");
+        player.sendMessage(
+                Messages.getPREFIX()
+                        + "§7Willkommen auf "
+                        + Messages.getANSI_GRADIENT()
+                        + "'s §7Server!"
+        );
+
+        scoreboardManager.update(player);
+        scoreboardManager.updateTabListForAll();
+        scoreboardManager.updateScoreboardForAll();
+
         event.setJoinMessage("");
     }
 }
