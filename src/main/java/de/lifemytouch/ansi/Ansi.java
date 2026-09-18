@@ -34,9 +34,11 @@ import de.lifemytouch.ansi.server.scoreboard.ScoreboardManager;
 import de.lifemytouch.ansi.server.tab.TabListManager;
 import de.lifemytouch.ansi.rank.RankCompleter;
 import de.lifemytouch.ansi.rank.RankManager;
+import de.lifemytouch.ansi.teleport.TeleportCommand;
 import de.lifemytouch.ansi.vanish.VanishCommand;
 import de.lifemytouch.ansi.vanish.VanishService;
 import de.lifemytouch.ansi.world.commands.LobbyCommand;
+import de.lifemytouch.ansi.world.commands.UUIDCommand;
 import de.lifemytouch.ansi.world.listener.BlockListener;
 import de.lifemytouch.ansi.world.listener.HotbarListener;
 import de.lifemytouch.ansi.world.listener.InventoryListener;
@@ -97,6 +99,8 @@ public final class Ansi extends JavaPlugin {
         getCommand("build").setExecutor(new BuildCommand(buildService));
         getCommand("friend").setExecutor(new FriendCommand(friendService));
         getCommand("coins").setExecutor(new CoinsCommand(coinService));
+        getCommand("uuid").setExecutor(new UUIDCommand());
+        getCommand("teleport").setExecutor(new TeleportCommand());
     }
 
     private void registerListeners() {

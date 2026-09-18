@@ -39,8 +39,9 @@ public class CoinsCommand implements CommandExecutor {
             return true;
         }
 
-        handleOtherBalance(player, args);
-
+        if(args[0].equalsIgnoreCase("see")) {
+            handleOtherBalance(player, args);
+        }
         return true;
     }
 
@@ -52,12 +53,12 @@ public class CoinsCommand implements CommandExecutor {
 
     private void handleOtherBalance(Player player, String[] args) {
 
-        if(args.length != 1) {
+        if(args.length != 2) {
             sendHelp(player);
             return;
         }
 
-        OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
+        OfflinePlayer target = Bukkit.getOfflinePlayer(args[1]);
 
         if(!target.hasPlayedBefore() && !target.isOnline()) {
             player.sendMessage(Messages.getPLAYER_NOT_ONLINE());
@@ -172,6 +173,7 @@ public class CoinsCommand implements CommandExecutor {
     }
 
     private void sendHelp(Player player) {
-
+        player.sendMessage(Messages.getPREFIX() + "§7/coins §esee §7<Spieler>");
+        player.sendMessage(Messages.getPREFIX() + "§7/coins");
     }
 }

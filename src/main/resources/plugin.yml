@@ -36,3 +36,8 @@ commands:
     description: Freunde
   coins:
     description: Verwaltet die Coins eines Spielers
+  uuid:
+    description: Hohlt die UUID von einem Spieler
+  teleport:
+    aliases: tp
+    description: Teleportiert dich zu einem Spieler

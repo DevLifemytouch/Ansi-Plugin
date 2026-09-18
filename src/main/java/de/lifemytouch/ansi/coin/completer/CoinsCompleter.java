@@ -17,7 +17,8 @@ public class CoinsCompleter implements TabCompleter {
             "set",
             "add",
             "remove",
-            "hide"
+            "hide",
+            "see"
     );
 
     @Override
@@ -32,23 +33,16 @@ public class CoinsCompleter implements TabCompleter {
 
             String input = args[0].toLowerCase();
 
-            List<String> result = SUBCOMMANDS.stream()
+            return SUBCOMMANDS.stream()
                     .filter(sub -> sub.startsWith(input))
                     .collect(Collectors.toList());
-
-            Bukkit.getOnlinePlayers().forEach(player -> {
-                if (player.getName().toLowerCase().startsWith(input)) {
-                    result.add(player.getName());
-                }
-            });
-
-            return result;
         }
 
         if (args.length == 2 &&
                 (args[0].equalsIgnoreCase("set")
                         || args[0].equalsIgnoreCase("add")
-                        || args[0].equalsIgnoreCase("remove"))) {
+                        || args[0].equalsIgnoreCase("remove")
+                        || args[0].equalsIgnoreCase("see"))) {
 
             String input = args[1].toLowerCase();
 
