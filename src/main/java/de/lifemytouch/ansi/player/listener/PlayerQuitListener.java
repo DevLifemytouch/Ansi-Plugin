@@ -2,6 +2,7 @@ package de.lifemytouch.ansi.player.listener;
 
 import de.lifemytouch.ansi.rank.RankManager;
 import de.lifemytouch.ansi.report.ReportObservationService;
+import de.lifemytouch.ansi.report.ReportService;
 import de.lifemytouch.ansi.server.scoreboard.ScoreboardManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -15,17 +16,20 @@ public class PlayerQuitListener implements Listener {
     private final JavaPlugin plugin;
     private final RankManager rankManager;
     private final ReportObservationService reportObservationService;
+    private final ReportService reportService;
     private final ScoreboardManager scoreboardManager;
 
     public PlayerQuitListener(
             JavaPlugin plugin,
             RankManager rankManager,
             ReportObservationService reportObservationService,
+            ReportService reportService,
             ScoreboardManager scoreboardManager
     ) {
         this.plugin = plugin;
         this.rankManager = rankManager;
         this.reportObservationService = reportObservationService;
+        this.reportService = reportService;
         this.scoreboardManager = scoreboardManager;
     }
 
@@ -37,6 +41,7 @@ public class PlayerQuitListener implements Listener {
         event.setQuitMessage("");
 
         reportObservationService.stop(player);
+        reportService.releaseReportsClaimedBy(player.getUniqueId());
         rankManager.clearPermission(player);
 
         Bukkit.getScheduler().runTaskLater(

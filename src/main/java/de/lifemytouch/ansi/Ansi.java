@@ -107,7 +107,7 @@ public final class Ansi extends JavaPlugin {
         getServer().getPluginManager().registerEvents(
                 new PlayerJoinListener(rankManager, scoreboardManager), this);
         getServer().getPluginManager().registerEvents(
-                new PlayerQuitListener(this, rankManager, reportObservationService, scoreboardManager), this);
+                new PlayerQuitListener(this, rankManager, reportObservationService, reportService, scoreboardManager), this);
         getServer().getPluginManager().registerEvents(new PlayerChatListener(), this);
         getServer().getPluginManager().registerEvents(new MotdListener(), this);
         getServer().getPluginManager().registerEvents(new BlockListener(buildService), this);

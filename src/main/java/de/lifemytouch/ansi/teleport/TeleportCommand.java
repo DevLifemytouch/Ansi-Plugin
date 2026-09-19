@@ -47,6 +47,11 @@ public class TeleportCommand implements CommandExecutor {
             return;
         }
 
+        if(target.getUniqueId() == player.getUniqueId()) {
+            player.sendMessage(Messages.getPREFIX() + "§7Du kannst dich nicht zu dir selber teleportieren!");
+            return;
+        }
+
         player.teleport(target);
         player.sendMessage(Messages.getPREFIX() + "§7Du wurdest zum Spieler §6" + target.getName() + "§7 teleportiert.");
 

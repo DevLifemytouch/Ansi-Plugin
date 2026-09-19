@@ -58,31 +58,73 @@ public class ReportService {
         return reportRepository.findByStatus(ReportStatus.IN_REVIEW);
     }
 
-    public void takeReport(long id, UUID moderator) {
-        Report report = requireReport(id);
+    public ReportClaimResult takeReport(long id, UUID moderator) {
+        Report report = reportRepository.findById(id);
 
-        report.setStatus(ReportStatus.IN_REVIEW);
-        report.setModerator(moderator);
+        if (report == null) {
+            return ReportClaimResult.NOT_FOUND;
+        }
 
-        reportRepository.save(report);
+        if (report.getStatus() == ReportStatus.PENDING) {
+            report.setStatus(ReportStatus.IN_REVIEW);
+            report.setModerator(moderator);
+            reportRepository.save(report);
+            return ReportClaimResult.CLAIMED;
+        }
+
+        if (report.getStatus() == ReportStatus.IN_REVIEW) {
+            return moderator.equals(report.getModerator())
+                    ? ReportClaimResult.ALREADY_CLAIMED_BY_YOU
+                    : ReportClaimResult.CLAIMED_BY_OTHER;
+        }
+
+        return ReportClaimResult.NOT_OPEN;
     }
 
-    public void resolveReport(long id, UUID moderator) {
+    public boolean resolveReport(long id, UUID moderator) {
         Report report = requireReport(id);
+
+        if (!isClaimedBy(report, moderator)) {
+            return false;
+        }
 
         report.setStatus(ReportStatus.RESOLVED);
-        report.setModerator(moderator);
-
         reportRepository.save(report);
+        return true;
     }
 
-    public void dismissReport(long id, UUID moderator) {
+    public boolean dismissReport(long id, UUID moderator) {
         Report report = requireReport(id);
 
-        report.setStatus(ReportStatus.DISMISSED);
-        report.setModerator(moderator);
+        if (!isClaimedBy(report, moderator)) {
+            return false;
+        }
 
+        report.setStatus(ReportStatus.DISMISSED);
         reportRepository.save(report);
+        return true;
+    }
+
+    public boolean isClaimedBy(long id, UUID moderator) {
+        Report report = reportRepository.findById(id);
+        return report != null && isClaimedBy(report, moderator);
+    }
+
+    public void releaseReportsClaimedBy(UUID moderator) {
+        for (Report report : reportRepository.findByStatus(ReportStatus.IN_REVIEW)) {
+            if (!moderator.equals(report.getModerator())) {
+                continue;
+            }
+
+            report.setStatus(ReportStatus.PENDING);
+            report.setModerator(null);
+            reportRepository.save(report);
+        }
+    }
+
+    private boolean isClaimedBy(Report report, UUID moderator) {
+        return report.getStatus() == ReportStatus.IN_REVIEW
+                && moderator.equals(report.getModerator());
     }
 
     private Report requireReport(long id) {

@@ -100,7 +100,8 @@ public class ReportDetailGUI {
                             )
                     )
             );
-        } else if (report.getStatus() == ReportStatus.IN_REVIEW) {
+        } else if (report.getStatus() == ReportStatus.IN_REVIEW
+                && reportService.isClaimedBy(reportId, player.getUniqueId())) {
             inventory.setItem(
                     15,
                     ItemBuilder.createItem(
@@ -162,6 +163,7 @@ public class ReportDetailGUI {
                         "§7Kategorie: §8" + report.getCategory().name(),
                         "§7Grund: §8" + report.getReason(),
                         "§7Status: " + status,
+                        "§7Bearbeiter: §8" + getModeratorName(report),
                         "§7Erstellt: §8" + simpleDateFormat.format(new Date(report.getCreatedAt()))
                 )
         );
@@ -172,6 +174,12 @@ public class ReportDetailGUI {
         String name = Bukkit.getOfflinePlayer(uuid).getName();
 
         return name != null ? name : uuid.toString().substring(0, 8);
+    }
+
+    private static String getModeratorName(Report report) {
+        return report.getModerator() == null
+                ? "-"
+                : getPlayerName(report.getModerator());
     }
 
 }

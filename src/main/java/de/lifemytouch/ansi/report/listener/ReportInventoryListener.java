@@ -277,11 +277,16 @@ public class ReportInventoryListener implements Listener {
                     return;
                 }
 
-                if (report.getStatus() == ReportStatus.PENDING) {
-                    holder.getReportService().takeReport(
-                            report.getId(),
-                            player.getUniqueId()
+                if (reportObservationService.isObserving(player)) {
+                    player.sendMessage(
+                            Messages.getPREFIX()
+                                    + "§7Du beobachtest bereits einen Spieler!"
                     );
+                    return;
+                }
+
+                if (!claimReport(player, holder.getReportService(), report)) {
+                    return;
                 }
 
                 boolean started = reportObservationService.start(
@@ -339,22 +344,27 @@ public class ReportInventoryListener implements Listener {
                 );
             }
 
-            case 13 -> ReportPunishmentGUI.open(
-                    player,
-                    holder.getReportService(),
-                    report.getId()
-            );
+            case 13 -> {
+                if (!claimReport(player, holder.getReportService(), report)) {
+                    return;
+                }
+
+                ReportPunishmentGUI.open(
+                        player,
+                        holder.getReportService(),
+                        report.getId()
+                );
+            }
 
             case 15 -> {
                 if (report.getStatus() == ReportStatus.PENDING) {
 
+                    if (!claimReport(player, holder.getReportService(), report)) {
+                        return;
+                    }
+
                     Player reporter = Bukkit.getPlayer(report.getReporter());
                     Player reported = Bukkit.getPlayer(report.getTarget());
-
-                    holder.getReportService().takeReport(
-                            report.getId(),
-                            player.getUniqueId()
-                    );
 
                     player.sendMessage(
                             Messages.getPREFIX()
@@ -376,6 +386,14 @@ public class ReportInventoryListener implements Listener {
 
                 } else if (report.getStatus() == ReportStatus.IN_REVIEW) {
 
+                    if (!holder.getReportService().isClaimedBy(
+                            report.getId(),
+                            player.getUniqueId()
+                    )) {
+                        sendClaimedByOtherMessage(player, report);
+                        return;
+                    }
+
                     reportObservationService.stop(player);
 
                     completeReport(
@@ -393,6 +411,10 @@ public class ReportInventoryListener implements Listener {
             }
 
             case 16 -> {
+                if (!claimReport(player, holder.getReportService(), report)) {
+                    return;
+                }
+
                 Player reporter = Bukkit.getPlayer(report.getReporter());
                 Player reported = Bukkit.getPlayer(report.getTarget());
 
@@ -840,6 +862,46 @@ public class ReportInventoryListener implements Listener {
                 Sound.ENTITY_PLAYER_LEVELUP,
                 1,
                 2
+        );
+    }
+
+    private boolean claimReport(
+            Player moderator,
+            ReportService reportService,
+            Report report
+    ) {
+        ReportClaimResult result = reportService.takeReport(
+                report.getId(),
+                moderator.getUniqueId()
+        );
+
+        if (result == ReportClaimResult.CLAIMED
+                || result == ReportClaimResult.ALREADY_CLAIMED_BY_YOU) {
+            return true;
+        }
+
+        if (result == ReportClaimResult.CLAIMED_BY_OTHER) {
+            sendClaimedByOtherMessage(moderator, report);
+        } else {
+            moderator.sendMessage(
+                    Messages.getPREFIX() + "§cDieser Report ist nicht mehr offen."
+            );
+        }
+
+        return false;
+    }
+
+    private void sendClaimedByOtherMessage(Player moderator, Report report) {
+        UUID claimedBy = report.getModerator();
+        String name = claimedBy == null
+                ? "einem anderen Teammitglied"
+                : Bukkit.getOfflinePlayer(claimedBy).getName();
+
+        moderator.sendMessage(
+                Messages.getPREFIX()
+                        + "§cDieser Report wird bereits von §6"
+                        + (name == null ? "einem anderen Teammitglied" : name)
+                        + " §cbearbeitet."
         );
     }
 

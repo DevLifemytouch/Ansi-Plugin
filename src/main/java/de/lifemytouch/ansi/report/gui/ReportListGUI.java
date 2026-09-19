@@ -10,6 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import de.lifemytouch.ansi.report.ReportPriority;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -144,8 +145,16 @@ public class ReportListGUI {
         }
 
         reports.sort(
-                (first, second) ->
-                        Long.compare(second.getId(), first.getId())
+                Comparator
+                        .comparingInt(
+                                (Report report) -> getStatusSortOrder(report.getStatus())
+                        )
+                        .thenComparingInt(
+                                report -> ReportPriority
+                                        .fromCategory(report.getCategory())
+                                        .getSortOrder()
+                        )
+                        .thenComparingLong(Report::getCreatedAt)
         );
 
         return reports;
@@ -185,13 +194,21 @@ public class ReportListGUI {
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
 
+        ReportPriority priority = ReportPriority.fromCategory(report.getCategory());
+
+        String moderator = report.getModerator() == null
+                ? "-"
+                : getPlayerName(report.getModerator());
+
         return ItemBuilder.createItem(material, "§c§lReport §8#" + report.getId(),
                 Arrays.asList(
                         "§7Spieler: §8" + getPlayerName(report.getTarget()),
                         "§7Reporter: §8" + getPlayerName(report.getReporter()),
                         "§7Kategorie: §8" + report.getCategory().name(),
+                        "§7Priorität: " + priority.getDisplayName(),
                         "§7Grund: §8" + report.getReason(),
                         "§7Status: " + status,
+                        "§7Bearbeiter: §8" + moderator,
                         "§7Erstellt: §8" + simpleDateFormat.format(new Date(report.getCreatedAt()))
                 )
         );
@@ -201,6 +218,14 @@ public class ReportListGUI {
         String name = Bukkit.getOfflinePlayer(uuid).getName();
 
         return name != null ? name : uuid.toString().substring(0, 8);
+    }
+
+    private static int getStatusSortOrder(ReportStatus status) {
+        return switch (status) {
+            case PENDING -> 0;
+            case IN_REVIEW -> 1;
+            case RESOLVED, DISMISSED -> 2;
+        };
     }
 
 }
