@@ -107,6 +107,31 @@ public class FriendRepository {
         return result;
     }
 
+    public FriendRequestSetting getRequestSetting(UUID player) {
+        String value = config.getString(
+                "players." + player + ".friend-request-setting",
+                FriendRequestSetting.EVERYONE.name()
+        );
+
+        try {
+            return FriendRequestSetting.valueOf(value);
+        } catch (IllegalArgumentException exception) {
+            return FriendRequestSetting.EVERYONE;
+        }
+    }
+
+    public void setRequestSetting(
+            UUID player,
+            FriendRequestSetting setting
+    ) {
+        config.set(
+                "players." + player + ".friend-request-setting",
+                setting.name()
+        );
+
+        save();
+    }
+
     private void save() {
         try {
             config.save(file);

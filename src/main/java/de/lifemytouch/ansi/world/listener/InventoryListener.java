@@ -3,6 +3,12 @@ package de.lifemytouch.ansi.world.listener;
 import de.lifemytouch.ansi.core.text.Messages;
 import de.lifemytouch.ansi.cosmetic.Cosmetic;
 import de.lifemytouch.ansi.cosmetic.CosmeticRepository;
+import de.lifemytouch.ansi.friend.FriendRequestSetting;
+import de.lifemytouch.ansi.friend.FriendService;
+import de.lifemytouch.ansi.message.PrivateMessageService;
+import de.lifemytouch.ansi.message.PrivateMessageSetting;
+import de.lifemytouch.ansi.playtime.PlaytimeService;
+import de.lifemytouch.ansi.rank.RankManager;
 import de.lifemytouch.ansi.world.inventories.*;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -15,6 +21,7 @@ import de.lifemytouch.ansi.coin.CoinService;
 import de.lifemytouch.ansi.cosmetic.CosmeticRegistry;
 import de.lifemytouch.ansi.cosmetic.CosmeticService;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.List;
 
@@ -24,15 +31,30 @@ public class InventoryListener implements Listener {
     private final CoinService coinService;
     private final CosmeticService cosmeticService;
     private final CosmeticRegistry cosmeticRegistry;
+    private final JavaPlugin plugin;
+    private final FriendService friendService;
+    private final RankManager rankManager;
+    private final PrivateMessageService privateMessageService;
+    private final PlaytimeService playtimeService;
 
     public InventoryListener(
             CoinService coinService,
             CosmeticService cosmeticService,
-            CosmeticRegistry cosmeticRegistry
+            CosmeticRegistry cosmeticRegistry,
+            JavaPlugin plugin,
+            FriendService friendService,
+            RankManager rankManager,
+            PrivateMessageService privateMessageService,
+            PlaytimeService playtimeService
     ) {
         this.coinService = coinService;
         this.cosmeticService = cosmeticService;
         this.cosmeticRegistry = cosmeticRegistry;
+        this.plugin = plugin;
+        this.friendService = friendService;
+        this.rankManager = rankManager;
+        this.privateMessageService = privateMessageService;
+        this.playtimeService = playtimeService;
     }
 
     @EventHandler
@@ -56,6 +78,21 @@ public class InventoryListener implements Listener {
             event.setCancelled(true);
 
             handleCosmeticsShopInventoryClick(player, event, holder);
+        }
+
+        if (event.getView().getTopInventory().getHolder() instanceof ProfileInventoryHolder) {
+            event.setCancelled(true);
+
+            handleProfile(player, event);
+
+        }
+
+        if (event.getView().getTopInventory().getHolder()
+                instanceof SettingsInventoryHolder) {
+
+            event.setCancelled(true);
+
+            handleSettings(player, event);
         }
 
     }
@@ -240,6 +277,74 @@ public class InventoryListener implements Listener {
                                 + " Coins §agekauft!"
                 );
             }
+        }
+    }
+
+    private void handleProfile(Player player, InventoryClickEvent event) {
+        event.setCancelled(true);
+
+        if (event.getRawSlot() == 49) {
+            CosmeticsInventory.open(
+                    player,
+                    cosmeticRegistry,
+                    cosmeticService
+            );
+            return;
+        }
+
+        if (event.getRawSlot() == 53) {
+            SettingsInventory.open(player, privateMessageService, friendService);
+        }
+    }
+
+    private void handleSettings(
+            Player player,
+            InventoryClickEvent event
+    ) {
+        if (event.getRawSlot() == 11) {
+            FriendRequestSetting newSetting = friendService.cycleRequestSetting(
+                    player.getUniqueId()
+            );
+
+            player.sendMessage(
+                    Messages.getPREFIX()
+                            + "§7Freundschaftsanfragen: "
+                            + newSetting.getDisplayName()
+            );
+
+            SettingsInventory.open(
+                    player,
+                    privateMessageService,
+                    friendService
+            );
+
+            return;
+        }
+
+        if (event.getRawSlot() == 13) {
+            PrivateMessageSetting newSetting = privateMessageService.cycleSetting(
+                    player.getUniqueId()
+            );
+
+            player.sendMessage(
+                    Messages.getPREFIX()
+                            + "§7Private Nachrichten: "
+                            + newSetting.getDisplayName()
+            );
+
+            SettingsInventory.open(player, privateMessageService, friendService);
+            return;
+        }
+
+        if (event.getRawSlot() == 22) {
+            ProfileInventory.open(
+                    plugin,
+                    player,
+                    rankManager,
+                    coinService,
+                    friendService,
+                    playtimeService
+            );
         }
     }
 

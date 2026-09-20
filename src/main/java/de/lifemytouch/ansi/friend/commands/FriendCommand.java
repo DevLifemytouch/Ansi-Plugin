@@ -73,6 +73,15 @@ public class FriendCommand implements CommandExecutor {
             return;
         }
 
+        if (!friendService.canReceiveRequests(targetUUID)) {
+            player.sendMessage(
+                    Messages.getPREFIX()
+                            + "§cDieser Spieler akzeptiert derzeit keine "
+                            + "Freundschaftsanfragen."
+            );
+            return;
+        }
+
         if(friendService.hasPendingRequest(targetUUID, playerUUID)) {
             player.sendMessage(Messages.getPREFIX() + "§cDu hast diesem Spieler bereits eine Anfrage gesendet.");
             return;
@@ -169,7 +178,7 @@ public class FriendCommand implements CommandExecutor {
                 status = "§cOffline";
             }
 
-            player.sendMessage("§7- §6" + friend.getName() + " §8» " + status);
+            player.sendMessage("§8• §6" + friend.getName() + " §8» " + status);
         }
 
     }

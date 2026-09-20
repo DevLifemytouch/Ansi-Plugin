@@ -41,3 +41,15 @@ commands:
   teleport:
     aliases: tp
     description: Teleportiert dich zu einem Spieler
+  staffchat:
+    aliases: sc
+    description: Aktiviert oder deaktiviert den Staff-Chat
+  stafflist:
+    aliases: staff
+    description: Zeigt die online Teammitglieder
+  msg:
+    aliases: [ message, tell, w ]
+    description: Sendet einem Spieler eine private Nachricht
+  playtime:
+    aliases: pt
+    description: Zeigt die Spielzeit eines Spielers

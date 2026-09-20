@@ -1,8 +1,8 @@
 package de.lifemytouch.ansi.world.listener;
 
-import de.lifemytouch.ansi.coin.CoinService;
 import de.lifemytouch.ansi.cosmetic.CosmeticRegistry;
 import de.lifemytouch.ansi.cosmetic.CosmeticService;
+import de.lifemytouch.ansi.playtime.PlaytimeService;
 import de.lifemytouch.ansi.world.inventories.CosmeticsInventory;
 import de.lifemytouch.ansi.world.inventories.LobbySwitcherInventory;
 import de.lifemytouch.ansi.world.inventories.NavInventory;
@@ -14,18 +14,37 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import de.lifemytouch.ansi.coin.CoinService;
+import de.lifemytouch.ansi.friend.FriendService;
+import de.lifemytouch.ansi.rank.RankManager;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public class HotbarListener implements Listener {
 
     private final CosmeticService cosmeticService;
     private final CosmeticRegistry cosmeticRegistry;
+    private final CoinService coinService;
+    private final FriendService friendService;
+    private final RankManager rankManager;
+    private final JavaPlugin plugin;
+    private final PlaytimeService playtimeService;
 
     public HotbarListener(
+            JavaPlugin plugin,
             CosmeticService cosmeticService,
-            CosmeticRegistry cosmeticRegistry
+            CosmeticRegistry cosmeticRegistry,
+            CoinService coinService,
+            FriendService friendService,
+            RankManager rankManager,
+            PlaytimeService playtimeService
     ) {
+        this.plugin = plugin;
         this.cosmeticService = cosmeticService;
         this.cosmeticRegistry = cosmeticRegistry;
+        this.coinService = coinService;
+        this.friendService = friendService;
+        this.rankManager = rankManager;
+        this.playtimeService = playtimeService;
     }
 
     @EventHandler
@@ -74,7 +93,14 @@ public class HotbarListener implements Listener {
 
     private void onProfileClick(Player player, PlayerInteractEvent event) {
         event.setCancelled(true);
-        ProfileInventory.open(player);
+        ProfileInventory.open(
+                plugin,
+                player,
+                rankManager,
+                coinService,
+                friendService,
+                playtimeService
+        );
     }
 
 }

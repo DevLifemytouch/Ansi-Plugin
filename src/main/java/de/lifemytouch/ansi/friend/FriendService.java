@@ -77,4 +77,19 @@ public class FriendService {
         return repository.getRequests(player);
     }
 
+    public FriendRequestSetting getRequestSetting(UUID player) {
+        return repository.getRequestSetting(player);
+    }
+
+    public FriendRequestSetting cycleRequestSetting(UUID player) {
+        FriendRequestSetting next = getRequestSetting(player).next();
+
+        repository.setRequestSetting(player, next);
+        return next;
+    }
+
+    public boolean canReceiveRequests(UUID player) {
+        return getRequestSetting(player) == FriendRequestSetting.EVERYONE;
+    }
+
 }

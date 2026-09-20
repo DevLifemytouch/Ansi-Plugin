@@ -15,7 +15,13 @@ import de.lifemytouch.ansi.friend.FriendService;
 import de.lifemytouch.ansi.friend.commands.FriendCommand;
 import de.lifemytouch.ansi.friend.completer.FriendTabCompleter;
 import de.lifemytouch.ansi.gamemode.GamemodeCommand;
+import de.lifemytouch.ansi.message.PrivateMessageRepository;
+import de.lifemytouch.ansi.message.PrivateMessageService;
+import de.lifemytouch.ansi.message.commands.MessageCommand;
 import de.lifemytouch.ansi.player.listener.*;
+import de.lifemytouch.ansi.playtime.PlaytimeRepository;
+import de.lifemytouch.ansi.playtime.PlaytimeService;
+import de.lifemytouch.ansi.playtime.commands.PlaytimeCommand;
 import de.lifemytouch.ansi.punish.PunishmentRepository;
 import de.lifemytouch.ansi.punish.PunishmentService;
 import de.lifemytouch.ansi.punish.commands.*;
@@ -34,6 +40,10 @@ import de.lifemytouch.ansi.server.scoreboard.ScoreboardManager;
 import de.lifemytouch.ansi.server.tab.TabListManager;
 import de.lifemytouch.ansi.rank.RankCompleter;
 import de.lifemytouch.ansi.rank.RankManager;
+import de.lifemytouch.ansi.staff.StaffChatListener;
+import de.lifemytouch.ansi.staff.StaffChatService;
+import de.lifemytouch.ansi.staff.StaffListCommand;
+import de.lifemytouch.ansi.staff.commands.StaffChatCommand;
 import de.lifemytouch.ansi.teleport.TeleportCommand;
 import de.lifemytouch.ansi.vanish.VanishCommand;
 import de.lifemytouch.ansi.vanish.VanishService;
@@ -67,6 +77,11 @@ public final class Ansi extends JavaPlugin {
     private CosmeticService cosmeticService;
     private CosmeticRegistry cosmeticRegistry;
     private ScoreboardManager scoreboardManager;
+    private StaffChatService staffChatService;
+    private PrivateMessageRepository privateMessageRepository;
+    private PrivateMessageService privateMessageService;
+    private PlaytimeRepository playtimeRepository;
+    private PlaytimeService playtimeService;
 
     static Color start = new Color(0, 105, 130);
     static Color end   = new Color(94, 234, 255);
@@ -81,6 +96,7 @@ public final class Ansi extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        Bukkit.getOnlinePlayers().forEach(playtimeService::stop);
     }
 
     private void registerCommands() {
@@ -101,13 +117,18 @@ public final class Ansi extends JavaPlugin {
         getCommand("coins").setExecutor(new CoinsCommand(coinService));
         getCommand("uuid").setExecutor(new UUIDCommand());
         getCommand("teleport").setExecutor(new TeleportCommand());
+        getCommand("staffchat").setExecutor(new StaffChatCommand(staffChatService));
+        getCommand("stafflist").setExecutor(new StaffListCommand(rankManager));
+        getCommand("msg").setExecutor(new MessageCommand(privateMessageService));
+        getCommand("playtime").setExecutor(new PlaytimeCommand(playtimeService));
     }
 
     private void registerListeners() {
         getServer().getPluginManager().registerEvents(
-                new PlayerJoinListener(rankManager, scoreboardManager), this);
+                new PlayerJoinListener(rankManager, scoreboardManager, playtimeService), this);
         getServer().getPluginManager().registerEvents(
-                new PlayerQuitListener(this, rankManager, reportObservationService, reportService, scoreboardManager), this);
+                new PlayerQuitListener(this, rankManager, reportObservationService, reportService,
+                        scoreboardManager, playtimeService), this);
         getServer().getPluginManager().registerEvents(new PlayerChatListener(), this);
         getServer().getPluginManager().registerEvents(new MotdListener(), this);
         getServer().getPluginManager().registerEvents(new BlockListener(buildService), this);
@@ -115,10 +136,12 @@ public final class Ansi extends JavaPlugin {
                 punishmentService), this);
         getServer().getPluginManager().registerEvents(new PunishmentListener(punishmentService), this);
         getServer().getPluginManager().registerEvents(new WorldListener(), this);
-        getServer().getPluginManager().registerEvents(new HotbarListener(cosmeticService, cosmeticRegistry), this);
-        getServer().getPluginManager().registerEvents(new InventoryListener(coinService,
-                cosmeticService, cosmeticRegistry), this);
+        getServer().getPluginManager().registerEvents(new HotbarListener(this, cosmeticService, cosmeticRegistry,
+                coinService, friendService, rankManager, playtimeService), this);
+        getServer().getPluginManager().registerEvents(new InventoryListener(coinService, cosmeticService, cosmeticRegistry,
+                this, friendService, rankManager, privateMessageService, playtimeService), this);
         getServer().getPluginManager().registerEvents(new ScoreboardListener(scoreboardManager), this);
+        getServer().getPluginManager().registerEvents(new StaffChatListener(this, staffChatService), this);
     }
 
     private void registerCompleters() {
@@ -140,7 +163,6 @@ public final class Ansi extends JavaPlugin {
         );
         reportRepository = new ReportRepository(this);
         reportService = new ReportService(reportRepository);
-        friendRepository = new FriendRepository(this);
 
         coinRepository = new CoinRepository(this);
         coinService = new CoinService(coinRepository);
@@ -149,9 +171,40 @@ public final class Ansi extends JavaPlugin {
         cosmeticService = new CosmeticService(cosmeticRepository);
         cosmeticRegistry = new CosmeticRegistry();
 
-        scoreboardManager = new ScoreboardManager(rankManager, coinService);
+        staffChatService = new StaffChatService();
+
+
+        friendRepository = new FriendRepository(this);
+        friendService = new FriendService(friendRepository);
+
+        privateMessageRepository = new PrivateMessageRepository(this);
+        privateMessageService = new PrivateMessageService(
+                privateMessageRepository,
+                friendService
+        );
+
+        playtimeRepository = new PlaytimeRepository(this);
+        playtimeService = new PlaytimeService(playtimeRepository);
+
+        scoreboardManager = new ScoreboardManager(rankManager, coinService, playtimeService);
 
         coinService.setScoreboardUpdater(scoreboardManager::updateScoreboard);
+
+        Bukkit.getScheduler().runTaskTimer(
+                this,
+                scoreboardManager::updateScoreboardForAll,
+                20L * 60L,
+                20L * 60L
+        );
+
+        Bukkit.getScheduler().runTaskTimer(
+                this,
+                () -> Bukkit.getOnlinePlayers().forEach(
+                        playtimeService::saveOnlineSession
+                ),
+                20L * 60L * 5L,
+                20L * 60L * 5L
+        );
 
         Bukkit.getScheduler().runTaskTimer(
                 this,

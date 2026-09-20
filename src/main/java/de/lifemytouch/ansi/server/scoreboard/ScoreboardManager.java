@@ -1,6 +1,8 @@
 package de.lifemytouch.ansi.server.scoreboard;
 
 import de.lifemytouch.ansi.coin.CoinService;
+import de.lifemytouch.ansi.playtime.PlaytimeRepository;
+import de.lifemytouch.ansi.playtime.PlaytimeService;
 import de.lifemytouch.ansi.rank.Rank;
 import de.lifemytouch.ansi.rank.RankManager;
 import de.lifemytouch.ansi.server.tab.TabListManager;
@@ -16,13 +18,16 @@ public class ScoreboardManager {
 
     private final RankManager rankManager;
     private final CoinService coinService;
+    private final PlaytimeService playtimeService;
 
     public ScoreboardManager(
             RankManager rankManager,
-            CoinService coinService
+            CoinService coinService,
+            PlaytimeService playtimeService
     ) {
         this.rankManager = rankManager;
         this.coinService = coinService;
+        this.playtimeService = playtimeService;
     }
 
     public void update(Player player) {
@@ -75,9 +80,8 @@ public class ScoreboardManager {
     }
 
     public void updateScoreboard(Player player) {
-
+        long playtime = playtimeService.getPlaytime(player.getUniqueId());
         Scoreboard scoreboard = player.getScoreboard();
-
         Objective oldObjective = scoreboard.getObjective("ansi");
 
         if (oldObjective != null) {
@@ -95,26 +99,29 @@ public class ScoreboardManager {
         Rank rank = rankManager.getRank(player);
         long coins = coinService.getCoins(player.getUniqueId());
 
-        objective.getScore("§8").setScore(8);
+        objective.getScore("§8").setScore(10);
 
-        objective.getScore("§7Rang: ").setScore(7);
-        objective.getScore(getScoreboardRank(rank)).setScore(6);
+        objective.getScore("§7Rang:").setScore(9);
+        objective.getScore(getScoreboardRank(rank)).setScore(8);
 
-        objective.getScore("§5").setScore(5);
+        objective.getScore("§5").setScore(7);
 
-        objective.getScore("§7Coins:").setScore(4);
-        objective.getScore("§e" + coins).setScore(3);
+        objective.getScore("§7Coins:").setScore(6);
+        objective.getScore("§e" + coins).setScore(5);
 
-        objective.getScore("§2").setScore(2);
+        objective.getScore("§3").setScore(4);
+
+        objective.getScore("§7Spielzeit:").setScore(3);
+        objective.getScore("§b" + playtimeService.format(playtime)).setScore(2);
+
+        objective.getScore("§2").setScore(1);
 
         objective.getScore(
                 "§7Online: §a"
                         + Bukkit.getOnlinePlayers().size()
                         + "§7/§a"
                         + Bukkit.getMaxPlayers()
-        ).setScore(1);
-
-        objective.getScore("§0").setScore(0);
+        ).setScore(0);
     }
 
     public void updateScoreboardForAll() {

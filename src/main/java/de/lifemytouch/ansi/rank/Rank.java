@@ -52,7 +52,8 @@ public enum Rank {
                     "ansi.commands.fly",
                     "ansi.commands.gm",
                     "ansi.reports.handle",
-                    "ansi.commands.lobby"
+                    "ansi.commands.lobby",
+                    "ansi.commands.sc"
             )
     ),
     TESTER(
@@ -64,7 +65,10 @@ public enum Rank {
             List.of(
                     "ansi.commands.fly",
                     "ansi.commands.lobby",
-                    "ansi.commands.teleport"
+                    "ansi.commands.teleport",
+                    "ansi.commands.coin.modify",
+                    "ansi.commands.sc",
+                    "ansi.reports.handle"
             )
     ),
     BUILDER(
