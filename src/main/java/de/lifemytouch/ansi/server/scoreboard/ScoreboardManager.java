@@ -138,8 +138,7 @@ public class ScoreboardManager {
             case DEV -> "§3§lDeveloper";
             case ADMIN -> "§c§lAdministrator";
             case MOD -> "§2§lModerator";
-            case TESTER -> "§b§lTester";
-            case BUILDER -> "§a§lBuilder";
+            case CONTENT -> "§c§lContent";
             case MEDIA -> "§5§lMedia";
             case VIPP -> "§d§lVIP+";
             case VIP -> "§d§lVIP";

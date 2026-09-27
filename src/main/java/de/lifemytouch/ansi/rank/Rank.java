@@ -22,6 +22,8 @@ public enum Rank {
                     "ansi.punish.*",
                     "ansi.reports.*",
                     "ansi.commands.*",
+                    "ansi.anticheat",
+                    "ansi.anticheat.*",
                     "minecraft.command.*"
             )
     ),
@@ -34,7 +36,8 @@ public enum Rank {
                     "ansi.punish.*",
                     "ansi.reports.*",
                     "ansi.commands.*",
-                    "ansi.commands.lobby"
+                    "ansi.anticheat",
+                    "ansi.anticheat.*"
             )
     ),
     MOD(
@@ -56,12 +59,12 @@ public enum Rank {
                     "ansi.commands.sc"
             )
     ),
-    TESTER(
-            "ansi.rank.tester",
-            "5_mod",
+    CONTENT(
+            "ansi.rank.content",
+            "5_content",
             8,
-            "§x§1§E§D§2§F§D§lT§x§2§8§D§7§F§D§lE§x§3§2§D§B§F§E§lS§x§3§C§E§0§F§E§lT§x§4§6§E§4§F§F§lE" +
-                    "§x§5§0§E§9§F§F§lR §8| §7",
+            "§x§F§F§3§F§3§F§lC§x§F§F§4§9§4§9§lO§x§F§F§5§3§5§3§lN§x§F§F§5§D§5§D§lT§x§F§F§6§6§6§6§lE" +
+                    "§x§F§F§7§0§7§0§lN§x§F§F§7§A§7§A§lT §8| §7",
             List.of(
                     "ansi.commands.fly",
                     "ansi.commands.lobby",
@@ -71,21 +74,9 @@ public enum Rank {
                     "ansi.reports.handle"
             )
     ),
-    BUILDER(
-            "ansi.rank.builder",
-            "6_mod",
-            8,
-            "§x§5§1§F§A§2§2§lB§x§5§B§F§B§2§A§lU§x§6§5§F§C§3§2§lI§x§7§0§F§D§3§A§lL§x§7§A§F§D§4§2§lD§" +
-                    "x§8§4§F§E§4§A§lE§x§8§E§F§F§5§2§lR §8| §7",
-            List.of(
-                    "ansi.commands.fly",
-                    "ansi.commands.build",
-                    "ansi.commands.lobby"
-            )
-    ),
     MEDIA(
             "ansi.rank.media",
-            "7_media",
+            "6_media",
             5,
             "§x§7§6§0§0§B§E§lM§x§7§F§0§E§C§3§lE§x§8§7§1§C§C§8§lD§x§9§0§2§9§C§D§lI§x§9§8§3§7§D§2§lA §8| §7",
             List.of(
@@ -95,7 +86,7 @@ public enum Rank {
     ),
     VIPP(
             "ansi.rank.vipp",
-            "8_vipp",
+            "7_vipp",
             4,
             "§x§D§B§0§0§C§C§lV§x§E§7§1§0§D§8§lI§x§F§3§2§1§E§5§lP§x§F§F§3§1§F§1§l+ §8| §7",
             List.of(
@@ -105,7 +96,7 @@ public enum Rank {
     ),
     VIP(
             "ansi.rank.vip",
-            "9_vip",
+            "8_vip",
             3,
             "§x§D§B§0§0§C§C§lV§x§E§D§1§9§D§F§lI§x§F§F§3§1§F§1§lP §8| §7",
             List.of(
@@ -115,7 +106,7 @@ public enum Rank {
     ),
     PREM(
             "ansi.rank.prem",
-            "a_prem",
+            "9_prem",
             2,
             "§x§D§B§B§2§0§0§lP§x§E§1§B§8§0§8§lR§x§E§7§B§F§0§F§lE§x§E§D§C§5§1§7§lM§" +
                     "x§F§3§C§B§1§E§lI§x§F§9§D§2§2§6§lU§x§F§F§D§8§2§D§lM §8| §7",
@@ -126,7 +117,7 @@ public enum Rank {
     ),
     DEFAULT(
             "ansi.rank.default",
-            "b_default",
+            "a_default",
             1,
             "§7Player §8| §7",
             List.of(

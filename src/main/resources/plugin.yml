@@ -53,3 +53,8 @@ commands:
   playtime:
     aliases: pt
     description: Zeigt die Spielzeit eines Spielers
+  maintenance:
+    description: Verwaltet den Wartungsmodus
+  anticheat:
+    aliases: ac
+    description: Verwaltet das AntiCheat

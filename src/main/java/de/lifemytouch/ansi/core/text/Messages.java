@@ -12,6 +12,7 @@ public class Messages {
     private static final String PREFIX = ANSI_GRADIENT + " §8| §r";
     private static final String NO_PERMS = PREFIX + "§7Dazu hast du keine Rechte!";
     private static final String PLAYER_NOT_ONLINE = PREFIX + "§7Der Spieler ist nicht online!";
+    private static final String ANTICHEAT_PREFIX = "§8[§c§lAntiCheat§8] §8» ";
 
     public static String getPREFIX() {
         return PREFIX;
@@ -27,5 +28,9 @@ public class Messages {
 
     public static String getPLAYER_NOT_ONLINE() {
         return PLAYER_NOT_ONLINE;
+    }
+
+    public static String getANTICHEAT_PREFIX() {
+        return ANTICHEAT_PREFIX;
     }
 }

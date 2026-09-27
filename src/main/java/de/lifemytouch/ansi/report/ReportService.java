@@ -9,6 +9,7 @@ import java.util.UUID;
 public class ReportService {
 
     private final ReportRepository reportRepository;
+    private static final UUID ANTICHEAT_UUID = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
     public ReportService(ReportRepository reportRepository) {
         this.reportRepository = reportRepository;
@@ -34,6 +35,45 @@ public class ReportService {
                 reportRepository.nextId(),
                 target.getUniqueId(),
                 reporter.getUniqueId(),
+                reportCategory,
+                reason,
+                System.currentTimeMillis(),
+                ReportStatus.PENDING,
+                null
+        );
+
+        reportRepository.save(report);
+
+        return report;
+    }
+
+    public Report createSystemReport(
+            Player target,
+            ReportCategory reportCategory,
+            String reason
+    ) {
+        if (target == null) {
+            throw new IllegalArgumentException(
+                    "Target darf nicht null sein!"
+            );
+        }
+
+        if (reportCategory == null) {
+            throw new IllegalArgumentException(
+                    "Keine Report-Kategorie angegeben!"
+            );
+        }
+
+        if (reason == null || reason.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Kein Report-Grund angegeben!"
+            );
+        }
+
+        Report report = new Report(
+                reportRepository.nextId(),
+                target.getUniqueId(),
+                ANTICHEAT_UUID,
                 reportCategory,
                 reason,
                 System.currentTimeMillis(),

@@ -10,9 +10,11 @@ import org.bukkit.entity.Player;
 public class VanishCommand implements CommandExecutor {
 
     private VanishService vanishService;
+    private FlyService flyService;
 
-    public VanishCommand(VanishService vanishService) {
+    public VanishCommand(FlyService flyService, VanishService vanishService) {
         this.vanishService = vanishService;
+        this.flyService = flyService;
     }
 
     @Override
@@ -26,13 +28,13 @@ public class VanishCommand implements CommandExecutor {
         }
 
         if(vanishService.isVanished(player)) {
-            vanishService.setVanish(player, true);
-            FlyService.handleFly(player);
-            player.sendMessage(Messages.getPREFIX() + "§7Du bist nun im Vanish!");
-        } else {
             vanishService.setVanish(player, false);
-            FlyService.handleFly(player);
+            flyService.setFly(player, false);
             player.sendMessage(Messages.getPREFIX() + "§7Du bist nicht mehr im Vanish!");
+        } else {
+            vanishService.setVanish(player, true);
+            flyService.setFly(player, true);
+            player.sendMessage(Messages.getPREFIX() + "§7Du bist nun im Vanish!");
         }
 
         return false;

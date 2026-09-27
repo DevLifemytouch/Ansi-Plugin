@@ -65,6 +65,10 @@ public class BlockListener implements Listener {
 
         Player player = event.getPlayer();
 
+        if(player.hasPermission("ansi.commands.build")) {
+            return;
+        }
+
         if(buildService.buildList.contains(player)) {
             event.setCancelled(false);
             return;

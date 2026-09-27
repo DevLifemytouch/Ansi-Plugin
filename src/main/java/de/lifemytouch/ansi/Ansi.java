@@ -1,5 +1,8 @@
 package de.lifemytouch.ansi;
 
+import de.lifemytouch.ansi.anticheat.AntiCheatManager;
+import de.lifemytouch.ansi.anticheat.commands.AntiCheatCommand;
+import de.lifemytouch.ansi.anticheat.completer.AntiCheatTabCompleter;
 import de.lifemytouch.ansi.build.BuildCommand;
 import de.lifemytouch.ansi.build.BuildService;
 import de.lifemytouch.ansi.coin.CoinRepository;
@@ -10,6 +13,7 @@ import de.lifemytouch.ansi.cosmetic.CosmeticRegistry;
 import de.lifemytouch.ansi.cosmetic.CosmeticRepository;
 import de.lifemytouch.ansi.cosmetic.CosmeticService;
 import de.lifemytouch.ansi.fly.FlyCommand;
+import de.lifemytouch.ansi.fly.FlyService;
 import de.lifemytouch.ansi.friend.FriendRepository;
 import de.lifemytouch.ansi.friend.FriendService;
 import de.lifemytouch.ansi.friend.commands.FriendCommand;
@@ -37,7 +41,6 @@ import de.lifemytouch.ansi.report.listener.ReportInventoryListener;
 import de.lifemytouch.ansi.server.listener.MotdListener;
 import de.lifemytouch.ansi.server.scoreboard.ScoreboardListener;
 import de.lifemytouch.ansi.server.scoreboard.ScoreboardManager;
-import de.lifemytouch.ansi.server.tab.TabListManager;
 import de.lifemytouch.ansi.rank.RankCompleter;
 import de.lifemytouch.ansi.rank.RankManager;
 import de.lifemytouch.ansi.staff.StaffChatListener;
@@ -54,8 +57,11 @@ import de.lifemytouch.ansi.world.listener.HotbarListener;
 import de.lifemytouch.ansi.world.listener.InventoryListener;
 import de.lifemytouch.ansi.world.listener.WorldListener;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import de.lifemytouch.ansi.maintenance.commands.MaintenanceCommand;
+import de.lifemytouch.ansi.maintenance.completer.MaintenanceCompleter;
+import de.lifemytouch.ansi.maintenance.listener.MaintenanceListener;
+import de.lifemytouch.ansi.maintenance.MaintenanceManager;
 
 import java.awt.*;
 
@@ -82,6 +88,9 @@ public final class Ansi extends JavaPlugin {
     private PrivateMessageService privateMessageService;
     private PlaytimeRepository playtimeRepository;
     private PlaytimeService playtimeService;
+    private MaintenanceManager maintenanceManager;
+    private FlyService flyService;
+    private AntiCheatManager antiCheatManager;
 
     static Color start = new Color(0, 105, 130);
     static Color end   = new Color(94, 234, 255);
@@ -104,8 +113,8 @@ public final class Ansi extends JavaPlugin {
         getCommand("rang").setExecutor(new RankCommand(rankManager));
         getCommand("report").setExecutor(new ReportCommand(reportService));
         getCommand("reports").setExecutor(new ReportsCommand(reportService));
-        getCommand("fly").setExecutor(new FlyCommand());
-        getCommand("vanish").setExecutor(new VanishCommand(vanishService));
+        getCommand("fly").setExecutor(new FlyCommand(flyService));
+        getCommand("vanish").setExecutor(new VanishCommand(flyService, vanishService));
         getCommand("ban").setExecutor(new BanCommand(punishmentService));
         getCommand("mute").setExecutor(new MuteCommand(punishmentService));
         getCommand("kick").setExecutor(new KickCommand(punishmentService));
@@ -121,6 +130,8 @@ public final class Ansi extends JavaPlugin {
         getCommand("stafflist").setExecutor(new StaffListCommand(rankManager));
         getCommand("msg").setExecutor(new MessageCommand(privateMessageService));
         getCommand("playtime").setExecutor(new PlaytimeCommand(playtimeService));
+        getCommand("maintenance").setExecutor(new MaintenanceCommand(maintenanceManager, rankManager));
+        getCommand("anticheat").setExecutor(new AntiCheatCommand(antiCheatManager));
     }
 
     private void registerListeners() {
@@ -138,10 +149,11 @@ public final class Ansi extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new WorldListener(), this);
         getServer().getPluginManager().registerEvents(new HotbarListener(this, cosmeticService, cosmeticRegistry,
                 coinService, friendService, rankManager, playtimeService), this);
-        getServer().getPluginManager().registerEvents(new InventoryListener(coinService, cosmeticService, cosmeticRegistry,
-                this, friendService, rankManager, privateMessageService, playtimeService), this);
+        getServer().getPluginManager().registerEvents(new InventoryListener(coinService, cosmeticService,
+                cosmeticRegistry, this, friendService, rankManager, privateMessageService, playtimeService), this);
         getServer().getPluginManager().registerEvents(new ScoreboardListener(scoreboardManager), this);
         getServer().getPluginManager().registerEvents(new StaffChatListener(this, staffChatService), this);
+        getServer().getPluginManager().registerEvents(new MaintenanceListener(maintenanceManager), this);
     }
 
     private void registerCompleters() {
@@ -149,6 +161,8 @@ public final class Ansi extends JavaPlugin {
         getCommand("ban").setTabCompleter(new BanTabCompleter());
         getCommand("friend").setTabCompleter(new FriendTabCompleter());
         getCommand("coins").setTabCompleter(new CoinsCompleter());
+        getCommand("maintenance").setTabCompleter(new MaintenanceCompleter());
+        getCommand("anticheat").setTabCompleter(new AntiCheatTabCompleter(antiCheatManager));
     }
 
     private void registerDependencies() {
@@ -161,8 +175,16 @@ public final class Ansi extends JavaPlugin {
                     scoreboardManager.updateTabListForAll();
                 }
         );
+
+        maintenanceManager = new MaintenanceManager(
+                this,
+                rankManager
+        );
+
         reportRepository = new ReportRepository(this);
         reportService = new ReportService(reportRepository);
+
+        antiCheatManager = new AntiCheatManager(this, reportService);
 
         coinRepository = new CoinRepository(this);
         coinService = new CoinService(coinRepository);
@@ -213,7 +235,7 @@ public final class Ansi extends JavaPlugin {
                 20L * 60L
         );
 
-        // Vanish Systeme
+        flyService = new FlyService();
 
         vanishService = new VanishService(this);
         reportObservationService = new ReportObservationService(vanishService);

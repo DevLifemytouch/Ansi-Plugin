@@ -8,22 +8,31 @@ import java.util.List;
 
 public class FlyService {
 
-    private static List<Player> flyList = new ArrayList<>();
+    private List<Player> flyList = new ArrayList<>();
 
-    public static void handleFly(Player player) {
+    public void setFly(Player player, boolean flying) {
 
-        if(flyList.contains(player)) {
-            player.setFlying(false);
-            player.setAllowFlight(false);
-            player.sendMessage(Messages.getPREFIX() + "§7Der Flugmodus wurde deaktiviert!");
-            flyList.remove(player);
-        } else {
+        if (flying) {
+
+            if(flyList.contains(player)) return;
+
             player.setAllowFlight(true);
             player.setFlying(true);
-            player.sendMessage(Messages.getPREFIX() + "§7Der Flugmodus wurde aktiviert!");
             flyList.add(player);
+
+            return;
         }
 
+        if(!flyList.contains(player)) return;
+
+        player.setFlying(false);
+        player.setAllowFlight(false);
+        flyList.remove(player);
+
+    }
+
+    public boolean getPlayerInList(Player player) {
+        return flyList.contains(player);
     }
 
 }
