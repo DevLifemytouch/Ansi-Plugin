@@ -69,7 +69,7 @@ public enum Rank {
                     "ansi.commands.fly",
                     "ansi.commands.lobby",
                     "ansi.commands.teleport",
-                    "ansi.commands.coin.modify",
+                    "ansi.commands.coins.modify",
                     "ansi.commands.sc",
                     "ansi.reports.handle"
             )

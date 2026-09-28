@@ -36,12 +36,8 @@ public class AntiCheatManager {
         NoFallCheck noFallCheck = new NoFallCheck(this);
         register(noFallCheck);
 
-        FlyCheck flyCheck = new FlyCheck(this);
-        register(flyCheck);
-
         // javaPlugin.getServer().getPluginManager().registerEvents(speedCheck, javaPlugin);
         javaPlugin.getServer().getPluginManager().registerEvents(noFallCheck, javaPlugin);
-        javaPlugin.getServer().getPluginManager().registerEvents(flyCheck, javaPlugin);
 
         register(new KillAuraCheck(this));
         register(new ReachCheck(this));

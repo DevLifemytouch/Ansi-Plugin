@@ -1,6 +1,5 @@
 package de.lifemytouch.ansi.build;
 
-import de.lifemytouch.ansi.player.listener.PlayerJoinListener;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
