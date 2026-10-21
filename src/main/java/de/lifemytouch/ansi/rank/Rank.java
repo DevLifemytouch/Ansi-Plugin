@@ -56,7 +56,8 @@ public enum Rank {
                     "ansi.commands.gm",
                     "ansi.reports.handle",
                     "ansi.commands.lobby",
-                    "ansi.commands.sc"
+                    "ansi.commands.sc",
+                    "ansi.commands.teleport"
             )
     ),
     CONTENT(
